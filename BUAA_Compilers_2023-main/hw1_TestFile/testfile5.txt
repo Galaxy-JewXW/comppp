@@ -1,0 +1,32 @@
+int main() {
+    printf("21371245\n");
+    int i = 0;
+    int a[2] = {3, 4};
+    for(i=0; i<10; i=i+1) {
+        if (i==3) {
+            continue;
+        }
+        if (i==5) {
+            break;
+        }
+        printf("i = %d\n", i);
+    }
+    a[0] = 1;
+    printf("a[0] = %d\n", a[0]);
+    const int x=1*2/2*3*3%4;
+    const int y=x*3-10;
+    int z=-+x+y*x;
+    int z2=+-y-y/x;
+    {}
+    ;
+    1 + 2;
+    if (x!=0) {
+        printf("x > 0\n");
+    } else {
+        printf("x <= 0\n");
+    }
+    printf("y = %d\n", y);
+    printf("z = %d\n", z);
+    printf("z2 = %d\n", z2);
+    return 0;
+}

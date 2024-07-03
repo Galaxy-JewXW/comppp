@@ -1,0 +1,16 @@
+int f1(int a,int b){
+    return a+b;
+}
+
+int f2(int c,int d){
+    return c-d;
+}
+
+int f3(int e){
+return 2*e;
+}
+
+int main(){
+        int a=3,b=2,c=5,d=1,e=6;
+        return 5*f1(a, b)/f2(c, d) - f3(e);
+}

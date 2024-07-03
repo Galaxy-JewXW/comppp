@@ -1,0 +1,1651 @@
+[label="CONSTTK const"]
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR a"]
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="PLUS +"]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="MINU -"]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <AddExp>
+<AddExp> -> PLUS +
+<AddExp> -> <AddExp>
+<AddExp> -> MINU -
+<AddExp> -> <MulExp>
+[label="<ConstExp>"]
+<ConstExp> -> <AddExp>
+[label="<ConstInitVal>"]
+<ConstInitVal> -> <ConstExp>
+[label="<ConstDef>"]
+<ConstDef> -> IDENFR a
+<ConstDef> -> ASSIGN =
+<ConstDef> -> <ConstInitVal>
+[label="SEMICN ;"]
+[label="<ConstDecl>"]
+<ConstDecl> -> CONSTTK const
+<ConstDecl> -> <BType>
+<ConstDecl> -> <ConstDef>
+<ConstDecl> -> SEMICN ;
+<Decl> -> <ConstDecl>
+[label="CONSTTK const"]
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR b"]
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<ConstExp>"]
+<ConstExp> -> <AddExp>
+[label="<ConstInitVal>"]
+<ConstInitVal> -> <ConstExp>
+[label="<ConstDef>"]
+<ConstDef> -> IDENFR b
+<ConstDef> -> ASSIGN =
+<ConstDef> -> <ConstInitVal>
+[label="COMMA ,"]
+[label="IDENFR c"]
+[label="ASSIGN ="]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<ConstExp>"]
+<ConstExp> -> <AddExp>
+[label="<ConstInitVal>"]
+<ConstInitVal> -> <ConstExp>
+[label="<ConstDef>"]
+<ConstDef> -> IDENFR c
+<ConstDef> -> ASSIGN =
+<ConstDef> -> <ConstInitVal>
+[label="SEMICN ;"]
+[label="<ConstDecl>"]
+<ConstDecl> -> CONSTTK const
+<ConstDecl> -> <BType>
+<ConstDecl> -> <ConstDef>
+<ConstDecl> -> COMMA ,
+<ConstDecl> -> <ConstDef>
+<ConstDecl> -> SEMICN ;
+<Decl> -> <ConstDecl>
+[label="INTTK int"]
+[label="MAINTK main"]
+[label="LPARENT ("]
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR X"]
+[label="ASSIGN ="]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<InitVal>"]
+<InitVal> -> <Exp>
+[label="<VarDef>"]
+<VarDef> -> IDENFR X
+<VarDef> -> ASSIGN =
+<VarDef> -> <InitVal>
+[label="SEMICN ;"]
+[label="<VarDecl>"]
+<VarDecl> -> <BType>
+<VarDecl> -> <VarDef>
+<VarDecl> -> SEMICN ;
+<Decl> -> <VarDecl>
+<BlockItem> -> <Decl>
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR y"]
+[label="ASSIGN ="]
+[label="INTCON 2"]
+[label="<Number>"]
+<Number> -> INTCON 2
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<InitVal>"]
+<InitVal> -> <Exp>
+[label="<VarDef>"]
+<VarDef> -> IDENFR y
+<VarDef> -> ASSIGN =
+<VarDef> -> <InitVal>
+[label="SEMICN ;"]
+[label="<VarDecl>"]
+<VarDecl> -> <BType>
+<VarDecl> -> <VarDef>
+<VarDecl> -> SEMICN ;
+<Decl> -> <VarDecl>
+<BlockItem> -> <Decl>
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR x"]
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<InitVal>"]
+<InitVal> -> <Exp>
+[label="<VarDef>"]
+<VarDef> -> IDENFR x
+<VarDef> -> ASSIGN =
+<VarDef> -> <InitVal>
+[label="SEMICN ;"]
+[label="<VarDecl>"]
+<VarDecl> -> <BType>
+<VarDecl> -> <VarDef>
+<VarDecl> -> SEMICN ;
+<Decl> -> <VarDecl>
+<BlockItem> -> <Decl>
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR n"]
+[label="<VarDef>"]
+<VarDef> -> IDENFR n
+[label="SEMICN ;"]
+[label="<VarDecl>"]
+<VarDecl> -> <BType>
+<VarDecl> -> <VarDef>
+<VarDecl> -> SEMICN ;
+<Decl> -> <VarDecl>
+<BlockItem> -> <Decl>
+[label="IDENFR n"]
+[label="<LVal>"]
+<LVal> -> IDENFR n
+[label="ASSIGN ="]
+[label="GETINTTK getint"]
+[label="LPARENT ("]
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> <LVal>
+<Stmt> -> ASSIGN =
+<Stmt> -> GETINTTK getint
+<Stmt> -> LPARENT (
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "21371408\n""]
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "21371408\n"
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "%d\n""]
+[label="COMMA ,"]
+[label="IDENFR a"]
+[label="<LVal>"]
+<LVal> -> IDENFR a
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "%d\n"
+<Stmt> -> COMMA ,
+<Stmt> -> <Exp>
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="IFTK if"]
+[label="LPARENT ("]
+[label="IDENFR a"]
+[label="<LVal>"]
+<LVal> -> IDENFR a
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="EQL =="]
+[label="IDENFR b"]
+[label="<LVal>"]
+<LVal> -> IDENFR b
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <EqExp>
+<EqExp> -> EQL ==
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <EqExp>
+[label="<LOrExp>"]
+<LOrExp> -> <LAndExp>
+[label="OR ||"]
+[label="IDENFR c"]
+[label="<LVal>"]
+<LVal> -> IDENFR c
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="GEQ >="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <RelExp>
+<RelExp> -> GEQ >=
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <EqExp>
+[label="<LOrExp>"]
+<LOrExp> -> <LAndExp>
+[label="OR ||"]
+[label="IDENFR b"]
+[label="<LVal>"]
+<LVal> -> IDENFR b
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="NEQ !="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <EqExp>
+<EqExp> -> NEQ !=
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <EqExp>
+[label="<LOrExp>"]
+<LOrExp> -> <LOrExp>
+<LOrExp> -> OR ||
+<LOrExp> -> <LOrExp>
+<LOrExp> -> OR ||
+<LOrExp> -> <LAndExp>
+[label="<Cond>"]
+<Cond> -> <LOrExp>
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR d"]
+[label="ASSIGN ="]
+[label="INTCON 10"]
+[label="<Number>"]
+<Number> -> INTCON 10
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<InitVal>"]
+<InitVal> -> <Exp>
+[label="<VarDef>"]
+<VarDef> -> IDENFR d
+<VarDef> -> ASSIGN =
+<VarDef> -> <InitVal>
+[label="SEMICN ;"]
+[label="<VarDecl>"]
+<VarDecl> -> <BType>
+<VarDecl> -> <VarDef>
+<VarDecl> -> SEMICN ;
+<Decl> -> <VarDecl>
+<BlockItem> -> <Decl>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "test if\n""]
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "test if\n"
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "%d\n""]
+[label="COMMA ,"]
+[label="IDENFR d"]
+[label="<LVal>"]
+<LVal> -> IDENFR d
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "%d\n"
+<Stmt> -> COMMA ,
+<Stmt> -> <Exp>
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> IFTK if
+<Stmt> -> LPARENT (
+<Stmt> -> <Cond>
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR e"]
+[label="ASSIGN ="]
+[label="INTCON 10"]
+[label="<Number>"]
+<Number> -> INTCON 10
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<InitVal>"]
+<InitVal> -> <Exp>
+[label="<VarDef>"]
+<VarDef> -> IDENFR e
+<VarDef> -> ASSIGN =
+<VarDef> -> <InitVal>
+[label="SEMICN ;"]
+[label="<VarDecl>"]
+<VarDecl> -> <BType>
+<VarDecl> -> <VarDef>
+<VarDecl> -> SEMICN ;
+<Decl> -> <VarDecl>
+<BlockItem> -> <Decl>
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR i"]
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<InitVal>"]
+<InitVal> -> <Exp>
+[label="<VarDef>"]
+<VarDef> -> IDENFR i
+<VarDef> -> ASSIGN =
+<VarDef> -> <InitVal>
+[label="COMMA ,"]
+[label="IDENFR k"]
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<InitVal>"]
+<InitVal> -> <Exp>
+[label="<VarDef>"]
+<VarDef> -> IDENFR k
+<VarDef> -> ASSIGN =
+<VarDef> -> <InitVal>
+[label="COMMA ,"]
+[label="IDENFR temp"]
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<InitVal>"]
+<InitVal> -> <Exp>
+[label="<VarDef>"]
+<VarDef> -> IDENFR temp
+<VarDef> -> ASSIGN =
+<VarDef> -> <InitVal>
+[label="SEMICN ;"]
+[label="<VarDecl>"]
+<VarDecl> -> <BType>
+<VarDecl> -> <VarDef>
+<VarDecl> -> COMMA ,
+<VarDecl> -> <VarDef>
+<VarDecl> -> COMMA ,
+<VarDecl> -> <VarDef>
+<VarDecl> -> SEMICN ;
+<Decl> -> <VarDecl>
+<BlockItem> -> <Decl>
+[label="IDENFR X"]
+[label="<LVal>"]
+<LVal> -> IDENFR X
+[label="ASSIGN ="]
+[label="IDENFR e"]
+[label="<LVal>"]
+<LVal> -> IDENFR e
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="PLUS +"]
+[label="IDENFR y"]
+[label="<LVal>"]
+<LVal> -> IDENFR y
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <AddExp>
+<AddExp> -> PLUS +
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> <LVal>
+<Stmt> -> ASSIGN =
+<Stmt> -> <Exp>
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="IDENFR y"]
+[label="<LVal>"]
+<LVal> -> IDENFR y
+[label="ASSIGN ="]
+[label="IDENFR e"]
+[label="<LVal>"]
+<LVal> -> IDENFR e
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="PLUS +"]
+[label="IDENFR a"]
+[label="<LVal>"]
+<LVal> -> IDENFR a
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <AddExp>
+<AddExp> -> PLUS +
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> <LVal>
+<Stmt> -> ASSIGN =
+<Stmt> -> <Exp>
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "%d\n""]
+[label="COMMA ,"]
+[label="IDENFR e"]
+[label="<LVal>"]
+<LVal> -> IDENFR e
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "%d\n"
+<Stmt> -> COMMA ,
+<Stmt> -> <Exp>
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="FORTK for"]
+[label="LPARENT ("]
+[label="IDENFR i"]
+[label="<LVal>"]
+<LVal> -> IDENFR i
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<ForStmt>"]
+<ForStmt> -> <LVal>
+<ForStmt> -> ASSIGN =
+<ForStmt> -> <Exp>
+[label="SEMICN ;"]
+[label="IDENFR i"]
+[label="<LVal>"]
+<LVal> -> IDENFR i
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="LEQ <="]
+[label="INTCON 10"]
+[label="<Number>"]
+<Number> -> INTCON 10
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <RelExp>
+<RelExp> -> LEQ <=
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <EqExp>
+[label="<LOrExp>"]
+<LOrExp> -> <LAndExp>
+[label="<Cond>"]
+<Cond> -> <LOrExp>
+[label="SEMICN ;"]
+[label="IDENFR i"]
+[label="<LVal>"]
+<LVal> -> IDENFR i
+[label="ASSIGN ="]
+[label="IDENFR i"]
+[label="<LVal>"]
+<LVal> -> IDENFR i
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="PLUS +"]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <AddExp>
+<AddExp> -> PLUS +
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<ForStmt>"]
+<ForStmt> -> <LVal>
+<ForStmt> -> ASSIGN =
+<ForStmt> -> <Exp>
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> FORTK for
+<Stmt> -> LPARENT (
+<Stmt> -> <ForStmt>
+<Stmt> -> SEMICN ;
+<Stmt> -> <Cond>
+<Stmt> -> SEMICN ;
+<Stmt> -> <ForStmt>
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="FORTK for"]
+[label="LPARENT ("]
+[label="IDENFR i"]
+[label="<LVal>"]
+<LVal> -> IDENFR i
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<ForStmt>"]
+<ForStmt> -> <LVal>
+<ForStmt> -> ASSIGN =
+<ForStmt> -> <Exp>
+[label="SEMICN ;"]
+[label="SEMICN ;"]
+[label="IDENFR i"]
+[label="<LVal>"]
+<LVal> -> IDENFR i
+[label="ASSIGN ="]
+[label="IDENFR i"]
+[label="<LVal>"]
+<LVal> -> IDENFR i
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="PLUS +"]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <AddExp>
+<AddExp> -> PLUS +
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<ForStmt>"]
+<ForStmt> -> <LVal>
+<ForStmt> -> ASSIGN =
+<ForStmt> -> <Exp>
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="IFTK if"]
+[label="LPARENT ("]
+[label="IDENFR e"]
+[label="<LVal>"]
+<LVal> -> IDENFR e
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="LEQ <="]
+[label="IDENFR c"]
+[label="<LVal>"]
+<LVal> -> IDENFR c
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <RelExp>
+<RelExp> -> LEQ <=
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <EqExp>
+[label="AND &&"]
+[label="IDENFR a"]
+[label="<LVal>"]
+<LVal> -> IDENFR a
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="EQL =="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <EqExp>
+<EqExp> -> EQL ==
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <LAndExp>
+<LAndExp> -> AND &&
+<LAndExp> -> <EqExp>
+[label="<LOrExp>"]
+<LOrExp> -> <LAndExp>
+[label="<Cond>"]
+<Cond> -> <LOrExp>
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "test for\n""]
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "test for\n"
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "if\n""]
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "if\n"
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="BREAKTK break"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> BREAKTK break
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="ELSETK else"]
+[label="LBRACE {"]
+[label="IDENFR e"]
+[label="<LVal>"]
+<LVal> -> IDENFR e
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> <LVal>
+<Stmt> -> ASSIGN =
+<Stmt> -> <Exp>
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "else\n""]
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "else\n"
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "continue\n""]
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "continue\n"
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="CONTINUETK continue"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> CONTINUETK continue
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> IFTK if
+<Stmt> -> LPARENT (
+<Stmt> -> <Cond>
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<Stmt> -> ELSETK else
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> FORTK for
+<Stmt> -> LPARENT (
+<Stmt> -> <ForStmt>
+<Stmt> -> SEMICN ;
+<Stmt> -> SEMICN ;
+<Stmt> -> <ForStmt>
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="INTTK int"]
+<BType> -> INTTK int
+[label="IDENFR arr"]
+[label="LBRACK ["]
+[label="INTCON 2"]
+[label="<Number>"]
+<Number> -> INTCON 2
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<ConstExp>"]
+<ConstExp> -> <AddExp>
+[label="RBRACK ]"]
+[label="<VarDef>"]
+<VarDef> -> IDENFR arr
+<VarDef> -> LBRACK [
+<VarDef> -> <ConstExp>
+<VarDef> -> RBRACK ]
+[label="SEMICN ;"]
+[label="<VarDecl>"]
+<VarDecl> -> <BType>
+<VarDecl> -> <VarDef>
+<VarDecl> -> SEMICN ;
+<Decl> -> <VarDecl>
+<BlockItem> -> <Decl>
+[label="IDENFR arr"]
+[label="LBRACK ["]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="RBRACK ]"]
+[label="<LVal>"]
+<LVal> -> IDENFR arr
+<LVal> -> LBRACK [
+<LVal> -> <Exp>
+<LVal> -> RBRACK ]
+[label="ASSIGN ="]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> <LVal>
+<Stmt> -> ASSIGN =
+<Stmt> -> <Exp>
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="PRINTFTK printf"]
+[label="LPARENT ("]
+[label="STRCON "%d""]
+[label="COMMA ,"]
+[label="IDENFR arr"]
+[label="LBRACK ["]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="RBRACK ]"]
+[label="<LVal>"]
+<LVal> -> IDENFR arr
+<LVal> -> LBRACK [
+<LVal> -> <Exp>
+<LVal> -> RBRACK ]
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="RPARENT )"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> PRINTFTK printf
+<Stmt> -> LPARENT (
+<Stmt> -> STRCON "%d"
+<Stmt> -> COMMA ,
+<Stmt> -> <Exp>
+<Stmt> -> RPARENT )
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="FORTK for"]
+[label="LPARENT ("]
+[label="SEMICN ;"]
+[label="SEMICN ;"]
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="BREAKTK break"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> BREAKTK break
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> FORTK for
+<Stmt> -> LPARENT (
+<Stmt> -> SEMICN ;
+<Stmt> -> SEMICN ;
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="FORTK for"]
+[label="LPARENT ("]
+[label="SEMICN ;"]
+[label="IDENFR e"]
+[label="<LVal>"]
+<LVal> -> IDENFR e
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="GRE >"]
+[label="INTCON 10"]
+[label="<Number>"]
+<Number> -> INTCON 10
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <RelExp>
+<RelExp> -> GRE >
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <EqExp>
+[label="<LOrExp>"]
+<LOrExp> -> <LAndExp>
+[label="<Cond>"]
+<Cond> -> <LOrExp>
+[label="SEMICN ;"]
+[label="IDENFR x"]
+[label="<LVal>"]
+<LVal> -> IDENFR x
+[label="ASSIGN ="]
+[label="IDENFR x"]
+[label="<LVal>"]
+<LVal> -> IDENFR x
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="PLUS +"]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <AddExp>
+<AddExp> -> PLUS +
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<ForStmt>"]
+<ForStmt> -> <LVal>
+<ForStmt> -> ASSIGN =
+<ForStmt> -> <Exp>
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> FORTK for
+<Stmt> -> LPARENT (
+<Stmt> -> SEMICN ;
+<Stmt> -> <Cond>
+<Stmt> -> SEMICN ;
+<Stmt> -> <ForStmt>
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="FORTK for"]
+[label="LPARENT ("]
+[label="IDENFR k"]
+[label="<LVal>"]
+<LVal> -> IDENFR k
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<ForStmt>"]
+<ForStmt> -> <LVal>
+<ForStmt> -> ASSIGN =
+<ForStmt> -> <Exp>
+[label="SEMICN ;"]
+[label="IDENFR k"]
+[label="<LVal>"]
+<LVal> -> IDENFR k
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="LEQ <="]
+[label="INTCON 10"]
+[label="<Number>"]
+<Number> -> INTCON 10
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <RelExp>
+<RelExp> -> LEQ <=
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <EqExp>
+[label="<LOrExp>"]
+<LOrExp> -> <LAndExp>
+[label="<Cond>"]
+<Cond> -> <LOrExp>
+[label="SEMICN ;"]
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="BREAKTK break"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> BREAKTK break
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> FORTK for
+<Stmt> -> LPARENT (
+<Stmt> -> <ForStmt>
+<Stmt> -> SEMICN ;
+<Stmt> -> <Cond>
+<Stmt> -> SEMICN ;
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="FORTK for"]
+[label="LPARENT ("]
+[label="SEMICN ;"]
+[label="SEMICN ;"]
+[label="IDENFR x"]
+[label="<LVal>"]
+<LVal> -> IDENFR x
+[label="ASSIGN ="]
+[label="IDENFR x"]
+[label="<LVal>"]
+<LVal> -> IDENFR x
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="PLUS +"]
+[label="INTCON 1"]
+[label="<Number>"]
+<Number> -> INTCON 1
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <AddExp>
+<AddExp> -> PLUS +
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<ForStmt>"]
+<ForStmt> -> <LVal>
+<ForStmt> -> ASSIGN =
+<ForStmt> -> <Exp>
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="BREAKTK break"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> BREAKTK break
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> FORTK for
+<Stmt> -> LPARENT (
+<Stmt> -> SEMICN ;
+<Stmt> -> SEMICN ;
+<Stmt> -> <ForStmt>
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="FORTK for"]
+[label="LPARENT ("]
+[label="SEMICN ;"]
+[label="IDENFR e"]
+[label="<LVal>"]
+<LVal> -> IDENFR e
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <LVal>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <AddExp>
+[label="LSS <"]
+[label="INTCON 10"]
+[label="<Number>"]
+<Number> -> INTCON 10
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<RelExp>"]
+<RelExp> -> <RelExp>
+<RelExp> -> LSS <
+<RelExp> -> <AddExp>
+[label="<EqExp>"]
+<EqExp> -> <RelExp>
+[label="<LAndExp>"]
+<LAndExp> -> <EqExp>
+[label="<LOrExp>"]
+<LOrExp> -> <LAndExp>
+[label="<Cond>"]
+<Cond> -> <LOrExp>
+[label="SEMICN ;"]
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="BREAKTK break"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> BREAKTK break
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> FORTK for
+<Stmt> -> LPARENT (
+<Stmt> -> SEMICN ;
+<Stmt> -> <Cond>
+<Stmt> -> SEMICN ;
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="FORTK for"]
+[label="LPARENT ("]
+[label="IDENFR temp"]
+[label="<LVal>"]
+<LVal> -> IDENFR temp
+[label="ASSIGN ="]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="<ForStmt>"]
+<ForStmt> -> <LVal>
+<ForStmt> -> ASSIGN =
+<ForStmt> -> <Exp>
+[label="SEMICN ;"]
+[label="SEMICN ;"]
+[label="RPARENT )"]
+[label="LBRACE {"]
+[label="BREAKTK break"]
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> BREAKTK break
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<Stmt>"]
+<Stmt> -> <Block>
+[label="<Stmt>"]
+<Stmt> -> FORTK for
+<Stmt> -> LPARENT (
+<Stmt> -> <ForStmt>
+<Stmt> -> SEMICN ;
+<Stmt> -> SEMICN ;
+<Stmt> -> RPARENT )
+<Stmt> -> <Stmt>
+<BlockItem> -> <Stmt>
+[label="RETURNTK return"]
+[label="INTCON 0"]
+[label="<Number>"]
+<Number> -> INTCON 0
+[label="<PrimaryExp>"]
+<PrimaryExp> -> <Number>
+[label="<UnaryExp>"]
+<UnaryExp> -> <PrimaryExp>
+[label="<MulExp>"]
+<MulExp> -> <UnaryExp>
+[label="<AddExp>"]
+<AddExp> -> <MulExp>
+[label="<Exp>"]
+<Exp> -> <AddExp>
+[label="SEMICN ;"]
+[label="<Stmt>"]
+<Stmt> -> RETURNTK return
+<Stmt> -> <Exp>
+<Stmt> -> SEMICN ;
+<BlockItem> -> <Stmt>
+[label="RBRACE }"]
+[label="<Block>"]
+<Block> -> LBRACE {
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> <BlockItem>
+<Block> -> RBRACE }
+[label="<MainFuncDef>"]
+<MainFuncDef> -> INTTK int
+<MainFuncDef> -> MAINTK main
+<MainFuncDef> -> LPARENT (
+<MainFuncDef> -> RPARENT )
+<MainFuncDef> -> <Block>
+[label="<CompUnit>"]
+<CompUnit> -> <Decl>
+<CompUnit> -> <Decl>
+<CompUnit> -> <MainFuncDef>

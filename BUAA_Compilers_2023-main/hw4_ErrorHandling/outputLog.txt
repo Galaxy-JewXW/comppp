@@ -1,0 +1,141 @@
+Visitor Enter CompUnit
+Visitor Enter ConstInitVal
+dimension is 0
+ConstInitVal Node is ConstInitVal
+<ConstInitVal> Children is<ConstExp> 
+ConstExp Node is ConstExp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+Visitor Enter ConstInitVal
+dimension is 0
+ConstInitVal Node is ConstInitVal
+<ConstInitVal> Children is<ConstExp> 
+ConstExp Node is ConstExp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is UnaryOp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+Visitor Enter Block
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is LVal
+Visitor From Stmt Enter LVal Branch
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is LVal
+Visitor From Stmt Enter LVal Branch
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 3
+<AddExp> Children is<AddExp> PLUS + <MulExp> 
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is RETURNTK
+Visitor From Stmt Enter Return Branch
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter MainFuncDef
+Visitor Enter Block
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is LVal
+Visitor From Stmt Enter LVal Branch
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is PRINTFTK
+Visitor From Stmt Enter Printf Branch
+checkFormatString format is "Hello World$"
+Stmt printf count is -1
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is RETURNTK
+Visitor From Stmt Enter Return Branch
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number

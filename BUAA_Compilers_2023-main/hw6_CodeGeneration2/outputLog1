@@ -1,0 +1,84 @@
+    User: getint
+Exception in thread "main" java.lang.NullPointerException: Cannot invoke "Object.toString()" because "this.curValue" is null
+    User: putint
+	at IRVisitor1.visitLval(IRVisitor1.java:382)
+    User: putch
+	at IRVisitor1.visitPrimaryExp(IRVisitor1.java:520)
+    User: putstr
+	at IRVisitor1.visitUnaryExp(IRVisitor1.java:475)
+Visitor Enter CompUnit
+	at IRVisitor1.visitMulExp(IRVisitor1.java:443)
+Visitor Enter ConstInitVal
+	at IRVisitor1.visitAddExp(IRVisitor1.java:411)
+dimension is 0
+	at IRVisitor1.visitExp(IRVisitor1.java:393)
+	at IRVisitor1.visitStmt(IRVisitor1.java:326)
+ConstInitVal Node is ConstInitVal
+	at IRVisitor1.visitBlockItem(IRVisitor1.java:305)
+<ConstInitVal> Children is<ConstExp>
+	at IRVisitor1.visitBlock(IRVisitor1.java:291)
+Visitor Enter AddExp
+	at IRVisitor1.visitMainFuncDef(IRVisitor1.java:277)
+AddExp children size is 1
+	at IRVisitor1.visitCompUnit(IRVisitor1.java:60)
+Visitor Enter MulExp
+	at Compiler.main(Compiler.java:59)
+Visitor Enter Number
+    User: 1
+    User: 1
+    User: 1
+    User: @a
+Enter VarDef!
+Enter VarDef 0 dimension!
+Enter VarDef 0 dimension root! b
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 3
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter Number
+    User: 2
+Visitor Enter MulExp
+visitLval True!!!
+curValueTable.size is: 1
+a
+curValue: @a = dso_local constant i32 1
+Enter AddExp isConstant!
+curInt is: 1
+    User: 3
+    User: @b
+globalVal1: @b = dso_local global i32 3
+Visitor Enter MainFuncDef
+    User: main
+Visitor Enter Block
+Visitor Enter BlockItem
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is RETURNTK
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 3
+Visitor Enter AddExp
+AddExp children size is 3
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+visitLval True!!!
+curValueTable.size is: 0
+a
+curValue: @a = dso_local constant i32 1
+    User: %_1
+Visitor Enter MulExp
+visitLval True!!!
+curValueTable.size is: 0
+b
+curValue: @b = dso_local global i32 3
+    User: %_2
+Enter AddExp !isConstant!
+    User: %_3
+Visitor Enter MulExp
+visitLval True!!!
+curValueTable.size is: 0
+c

@@ -1,0 +1,55 @@
+// testfile4: 函数
+
+int global = 1000;
+
+int gcd(int a, int b) {
+    if (a == 0) {
+            return b;
+    }
+    else {
+            return gcd(b%a, a);
+    }
+    return 0;
+}
+
+int add(int a, int b) {
+    return a + b;
+}
+
+int provider() {
+    global = global + 1000;
+    return global;
+}
+
+int calc_sum(int nums[], int count) {
+    int i;
+    int sum = 0;
+    for (i = 0; i < count; i = i+1) {
+        sum = add(sum, nums[i]);
+    }
+    return sum;
+}
+
+int main() {
+    printf("21371326\n"); // 1
+
+    printf("%d\n", provider()); // 2
+    printf("%d\n", provider()); // 3
+    
+    printf("gcd(32, 64)=%d\n", gcd(32, 64)); // 4
+    
+    printf("gcd(0, 10)=%d\n", gcd(0, 10)); // 5
+    
+    printf("(3+4)+(3+(3+4))=%d\n", add(add(3, 4), add(3, add(3, 4)))); // 6
+
+    const int n = 5;
+    int a [5] = {1, 2, 3, 4, 5};
+
+    int i;
+    for (i = n; i >= 2; i = i-1) {
+        int sum = calc_sum(a, i);
+        printf("sum=%d\n", sum); // 7-10
+    }
+
+    return 0;
+}

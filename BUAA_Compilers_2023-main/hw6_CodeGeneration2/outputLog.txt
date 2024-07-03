@@ -1,0 +1,51 @@
+Visitor Enter CompUnit
+Visitor Enter Block
+Visitor Enter MainFuncDef
+Visitor Enter Block
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is Exp
+Visitor From Stmt Enter Exp Branch
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is IDENFR
+Visitor Enter FuncRParams
+node.getChildrenSize is 1
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+visitFuncRParams curInt EntryType.Values.Value is 1
+f1
+ParamErrorHelper tableEntry.funcParamsNum() is 3
+ParamErrorHelper rParamSize is 1
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is RETURNTK
+Visitor From Stmt Enter Return Branch
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+<AddExp> Children is<MulExp> 
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+has error!

@@ -1,0 +1,61 @@
+// testfile1: 逻辑与或
+
+int global = 0;
+int func_cond() {
+    global = global + 1;
+    return 1;
+}
+
+void check(int a, int b, int c, int d) {
+    if (a && b < 10 || c > 2 && d) {
+        printf("check pass\n");
+    }
+}
+
+int main() {
+    printf("21371326\n"); // 1
+
+    printf("%d\n", global); // 2
+    if (0 && func_cond()) {
+        ;
+    }
+
+    printf("%d\n", global); // 3
+    if (1 || func_cond()) {
+        ;
+    }
+
+    printf("%d\n", global); // 4
+    if (1 && func_cond() && 0 && func_cond()) {
+        ;
+    }
+
+    printf("%d\n", global); // 5
+    if (0 || !func_cond() || 1 || !func_cond()) {
+        ;
+    }
+
+    printf("%d\n", global); // 6
+    if (0 && func_cond() || func_cond() && 1) {
+        ;
+    }
+
+    printf("%d\n", global); // 7
+    if (0 || !func_cond() && func_cond() && 1) {
+        ;
+    }
+
+    printf("%d\n", global); // 8
+    if (0 && func_cond() || func_cond()) {
+        ;
+    }
+
+    printf("%d\n", global); // 9
+    if (!func_cond() || 1 && func_cond()) {
+        ;
+    }
+    
+    printf("%d\n", global); // 10
+
+    return 0;
+}

@@ -1,0 +1,222 @@
+    User: getint
+    User: putint
+    User: putch
+    User: putstr
+Visitor Enter CompUnit
+Visitor Enter ConstInitVal
+dimension is 0
+ConstInitVal Node is ConstInitVal
+<ConstInitVal> Children is<ConstExp> 
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+    User: 1
+    User: 1
+    User: @const1
+globalVal: @const1 = dso_local constant i32 1
+Visitor Enter ConstInitVal
+dimension is 0
+ConstInitVal Node is ConstInitVal
+<ConstInitVal> Children is<ConstExp> 
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is UnaryOp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+    User: 100
+    User: -100
+    User: @const2
+globalVal: @const2 = dso_local constant i32 -100
+Enter VisitVarDef1!!
+    User: 0
+    User: @change1
+globalVal2: @change1 = dso_local global i32 0
+    User: 0
+    User: 0
+ident is gets1
+    User: @gets1
+function1 is define i32 @gets1(i32 %_0, i32 %_1) {
+}
+    User: gets1
+function is define i32 @gets1(i32 %_0, i32 %_1) {
+}
+    User: %_3
+    User: %_4
+    User: %_4
+    User: %_5
+Visitor Enter Block
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is LVal
+Visitor From Stmt Enter LVal Branch
+first of Lval is const1
+visitLval True!!!
+curValueTable.size is: 2
+curTableEntry:  ConstVar
+curValue: @const1 = dso_local constant i32 1
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+    User: 999
+    User: %_5
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is LVal
+Visitor From Stmt Enter LVal Branch
+first of Lval is change1
+visitLval True!!!
+curValueTable.size is: 2
+curTableEntry: change1 Var
+curValue: @change1 = dso_local global i32 0
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 3
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+first of Lval is var1
+visitLval True!!!
+curValueTable.size is: 2
+curTableEntry: var1 Var
+curValue: %_3 = alloca i32
+    User: %_5
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+first of Lval is var2
+visitLval True!!!
+curValueTable.size is: 2
+curTableEntry: var2 Var
+curValue: %_4 = alloca i32
+    User: %_6
+    User: %_7
+    User: %_8
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is RETURNTK
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+first of Lval is change1
+visitLval True!!!
+curValueTable.size is: 2
+curTableEntry: change1 Var
+curValue: @change1 = dso_local global i32 0
+    User: %_8
+    User: 
+Visitor Enter MainFuncDef
+    User: main
+Visitor Enter Block
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is LVal
+Visitor From Stmt Enter LVal Branch
+first of Lval is change1
+visitLval True!!!
+curValueTable.size is: 0
+curTableEntry: change1 Var
+curValue: @change1 = dso_local global i32 0
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+    User: 10
+    User: %_1
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is PRINTFTK
+Visitor From Stmt Enter Printf Branch
+    User: 72
+    User: 
+    User: 101
+    User: 
+    User: 108
+    User: 
+    User: 108
+    User: 
+    User: 111
+    User: 
+    User: 32
+    User: 
+    User: 87
+    User: 
+    User: 111
+    User: 
+    User: 114
+    User: 
+    User: 108
+    User: 
+    User: 100
+    User: 
+    User: 36
+    User: 
+Visitor Enter BlockItem
+Visitor Enter Stmt
+node is Stmt
+first node is RETURNTK
+Visitor Enter Exp
+Visitor Enter AddExp
+AddExp children size is 1
+Visitor Enter MulExp
+Visitor Enter UnaryExp
+UnaryExp Node is UnaryExp
+UnaryExp First Child Node is PrimaryExp
+Visitor Enter PrimaryExp
+PrimaryExp Node is PrimaryExp
+Visitor Enter Number
+    User: 0
+    User: 
