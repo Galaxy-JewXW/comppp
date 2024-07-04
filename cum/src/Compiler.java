@@ -3,7 +3,6 @@ import Lexer.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintStream;
-import java.util.ArrayList;
 
 public class Compiler {
     public static void main(String[] args) throws Exception {
