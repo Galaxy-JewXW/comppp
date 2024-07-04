@@ -562,7 +562,6 @@ public class Parser {
         // LOrExp
         child = parseLOrExp(depth + 1);
         child.setParent(cond);
-        cond.addChild(child);
 
         return cond;
     }
