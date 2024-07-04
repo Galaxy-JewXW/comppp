@@ -107,4 +107,18 @@ public class ASTNode {
             return "<" + symbol.name() + ">";
         }
     }
+
+    public static void printTree(ASTNode root) {
+        if (root.isLeaf()) {
+            System.out.println(root);
+            return;
+        }
+        for (ASTNode child : root.getChildren()) {
+            printTree(child);
+        }
+        if (root.getSymbol() != GrammarSymbol.BlockItem && root.getSymbol() != GrammarSymbol.BType
+                && root.getSymbol() != GrammarSymbol.Decl) {
+            System.out.println(root);
+        }
+    }
 }

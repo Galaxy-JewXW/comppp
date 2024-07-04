@@ -12,5 +12,7 @@ public class Compiler {
         Lexer lexer = new Lexer(reader);
         lexer.parse();
         Parser parser = new Parser(lexer.getTokens());
+        ASTNode root = parser.parse();
+        ASTNode.printTree(root);
     }
 }

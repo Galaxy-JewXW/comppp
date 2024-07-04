@@ -1,38 +1,54 @@
-CONSTTK const
-INTTK int
-IDENFR array
-LBRACK [
-INTCON 2
-RBRACK ]
-ASSIGN =
-LBRACE {
-INTCON 1
-COMMA ,
-INTCON 2
-RBRACE }
-SEMICN ;
 INTTK int
 MAINTK main
 LPARENT (
 RPARENT )
 LBRACE {
-INTTK int
-IDENFR c
-SEMICN ;
-IDENFR c
-ASSIGN =
-GETINTTK getint
+IFTK if
 LPARENT (
+IDENFR i
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+GRE >
+IDENFR j
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+IDENFR i
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+GRE >
+IDENFR j
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
 RPARENT )
-SEMICN ;
-PRINTFTK printf
-LPARENT (
-STRCON "output is %d"
-COMMA ,
-IDENFR c
-RPARENT )
-SEMICN ;
-RETURNTK return
-IDENFR c
-SEMICN ;
+LBRACE {
 RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+RBRACE }
+<Block>
+<MainFuncDef>
+<CompUnit>
