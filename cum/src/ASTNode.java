@@ -86,13 +86,13 @@ public class ASTNode {
         return isLeaf;
     }
 
-    public void addChildren(ASTNode node) {
+    public void addChild(ASTNode node) {
         children.add(node);
     }
 
     public void setParent(ASTNode parent) {
         this.parent = parent;
-        parent.addChildren(this);
+        parent.addChild(this);
     }
 
     public ArrayList<ASTNode> getChildren() {
