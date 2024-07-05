@@ -849,6 +849,13 @@ public class Parser {
         return funcRParams;
     }
 
+    private ASTNode addSelfNode(ASTNode node, GrammarSymbol symbol, int depth) {
+        ASTNode temp = new ASTNode(symbol, null, depth);
+        connect(temp, node);
+        node.setDepth(depth + 1);
+        return temp;
+    }
+
     // 乘除模表达式 MulExp -> UnaryExp | MulExp ('*' | '/' | '%') UnaryExp
     // MulExp -> UnaryExp { ('*' | '/' | '%') UnaryExp }
     public ASTNode parseMulExp(int depth) {
@@ -860,12 +867,8 @@ public class Parser {
         while (curTokenType() == Token.Type.MULT
                 || curTokenType() == Token.Type.DIV
                 || curTokenType() == Token.Type.MOD) {
-            ASTNode temp = new ASTNode(GrammarSymbol.MulExp, null, depth);
-            temp.addChild(mulExp);
-            mulExp.setParent(temp);
-            mulExp.setDepth(depth + 1);
             child.setDepth(depth + 2);
-            mulExp = temp;
+            mulExp = addSelfNode(mulExp, GrammarSymbol.MulExp, depth);
 
             addCurToken(mulExp, depth);
 
@@ -886,12 +889,8 @@ public class Parser {
 
         while (curTokenType() == Token.Type.PLUS
                 || curTokenType() == Token.Type.MINU) {
-            ASTNode temp = new ASTNode(GrammarSymbol.AddExp, null, depth);
-            temp.addChild(addExp);
-            addExp.setParent(temp);
-            addExp.setDepth(depth + 1);
+            addExp = addSelfNode(addExp, GrammarSymbol.AddExp, depth);
             child.setDepth(depth + 2);
-            addExp = temp;
 
             addCurToken(addExp, depth);
 
@@ -915,12 +914,8 @@ public class Parser {
                 || curTokenType() == Token.Type.LEQ
                 || curTokenType() == Token.Type.GRE
                 || curTokenType() == Token.Type.GEQ) {
-            ASTNode temp = new ASTNode(GrammarSymbol.RelExp, null, depth);
-            temp.addChild(relExp);
-            relExp.setParent(temp);
-            relExp.setDepth(depth + 1);
+            relExp = addSelfNode(relExp, GrammarSymbol.RelExp, depth);
             child.setDepth(depth + 2);
-            relExp = temp;
 
             addCurToken(relExp, depth);
 
@@ -942,12 +937,8 @@ public class Parser {
 
         while (curTokenType() == Token.Type.EQL
                 || curTokenType() == Token.Type.NEQ) {
-            ASTNode temp = new ASTNode(GrammarSymbol.EqExp, null, depth);
-            temp.addChild(eqExp);
-            eqExp.setParent(temp);
-            eqExp.setDepth(depth + 1);
+            eqExp = addSelfNode(eqExp, GrammarSymbol.EqExp, depth);
             child.setDepth(depth + 2);
-            eqExp = temp;
 
             addCurToken(eqExp, depth);
 
@@ -968,12 +959,8 @@ public class Parser {
         connect(lAndExp, child);
 
         while (curTokenType() == Token.Type.AND) {
-            ASTNode temp = new ASTNode(GrammarSymbol.LAndExp, null, depth);
-            temp.addChild(lAndExp);
-            lAndExp.setParent(temp);
-            lAndExp.setDepth(depth + 1);
+            lAndExp = addSelfNode(lAndExp, GrammarSymbol.LAndExp, depth);
             child.setDepth(depth + 2);
-            lAndExp = temp;
 
             addCurToken(lAndExp, depth);
 
@@ -994,12 +981,8 @@ public class Parser {
         connect(lOrExp, child);
 
         while (curTokenType() == Token.Type.OR) {
-            ASTNode temp = new ASTNode(GrammarSymbol.LOrExp, null, depth);
-            temp.addChild(lOrExp);
-            lOrExp.setParent(temp);
-            lOrExp.setDepth(depth + 1);
+            lOrExp = addSelfNode(lOrExp, GrammarSymbol.LOrExp, depth);
             child.setDepth(depth + 2);
-            lOrExp = temp;
 
             addCurToken(lOrExp, depth);
 

@@ -11,25 +11,26 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Visitor {
-    private SymbolTable curSymbolTable; // 当前符号表
-    private ArrayList<String> errorList; // 错误列表
-    private ArrayList<Integer> curDimensions; // 当前维度列表(visitConstDef用)
-    private ConstValue curConstValue; // 当前需要赋值的常量值(visitConstInitVal用)
-    private boolean isMultiArrayInit; // 多维数组初始化(visitConstInitVal和visitInitVal用)
-    private boolean isConstant; // 当前是否为常量(visitConstExp用)
-    private int curInt; // 当前得到的整数(visitConstExp用)
-    private boolean receiveReturn; // 当前函数是否有返回值(visitBlock & visitFuncDef用)
-    private boolean createSTableBeforeBlock; // 是否在Block前创建符号表(visitBlock & visitFuncDef用)
-    private FuncType curFuncType; // 当前函数的返回值类型(visitFuncDef用)
-    private int funcEndLineNum; // 函数结束的行号(visitFuncDef用)
-    private boolean debug; // 是否开启debug模式
+    private ASTNode root;
+    private SymbolTable curSymbolTable;
+    private final ArrayList<String> errorList;
+    private final ArrayList<Integer> curDimensions;
+    private ConstValue curConstValue;
+    private boolean isMultiArrayInit;
+    private boolean isConstant;
+    private int curInt;
+    private boolean receiveReturn;
+    private boolean createSTableBeforeBlock;
+    private FuncType curFuncType;
+    private int funcEndLineNum;
+    private final boolean debug;
     private TableEntry curTableEntry; // 分析左值的时候用
     private int inFor; // 解析for循环的时候用
 
     public Visitor(ASTNode root, boolean debug) {
         this.curSymbolTable = new SymbolTable(null, true);
         this.errorList = new ArrayList<>();
-
+        this.root = root;
         this.curDimensions = new ArrayList<>();
         this.isConstant = false;
         this.isMultiArrayInit = false;
@@ -43,11 +44,11 @@ public class Visitor {
     }
 
     // CompUnit -> {Decl} {FuncDef} MainFuncDef
-    public void visitCompUnit(ASTNode node) {
+    public void visitCompUnit() {
         if (debug) {
             System.out.println("Visitor Enter CompUnit");
         }
-        for (ASTNode child : node.getChildren()) {
+        for (ASTNode child : root.getChildren()) {
             if (child.getGrammarSymbol() == GrammarSymbol.Decl) {
                 visitDecl(child);
             } else if (child.getGrammarSymbol() == GrammarSymbol.FuncDef) {
@@ -60,7 +61,6 @@ public class Visitor {
 
     // Decl -> ConstDecl | VarDecl
     public void visitDecl(ASTNode node) {
-        // Actually the size of children is 1
         for (ASTNode child : node.getChildren()) {
             if (child.getGrammarSymbol() == GrammarSymbol.ConstDecl) {
                 visitConstDecl(child);
@@ -90,19 +90,15 @@ public class Visitor {
     public void visitConstDef(ASTNode node) {
         // Ident
         ASTNode ident = node.getChild(0);
-        if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
+        if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
             errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
         } else {
             int i = 1;
             int length = node.getChildren().size();
             curDimensions.clear();
-            while (i < length - 2 &&
-            node.getChild(i).getToken().getType().equals(Token.Type.LBRACK)) {
-
-                if (debug) {
-                    System.out.println("Visitor Enter ConstDef");
-                }
+            while (i < length - 2 && node.getChild(i).getToken().
+                    getType().equals(Token.Type.LBRACK)) {
                 isConstant = true;
                 visitConstExp(node.getChild(i + 1));
                 isConstant = false;
@@ -141,22 +137,11 @@ public class Visitor {
     // ConstInitVal -> ConstExp
     //    | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
     public void visitConstInitVal(ASTNode node, int dimension) {
-        if (debug) {
-            System.out.println("Visitor Enter ConstInitVal");
-            System.out.println("dimension is " + dimension);
-            if (node.getGrammarSymbol() != null) {
-                System.out.println("ConstInitVal Node is " + node.getGrammarSymbol());
-            } else {
-                System.out.println("ConstInitVal Node is " + node.getToken().getType());
-            }
-            node.printAllChildren();
-        }
         switch (dimension) {
             case 0: // ConstExp
                 isConstant = true;
                 visitConstExp(node.getChild(0));
                 isConstant = false;
-
                 ConstVar constVar = new ConstVar(curInt);
                 curConstValue = new ConstValue(0, constVar);
                 break;
@@ -1065,7 +1050,7 @@ public class Visitor {
         }
     }
 
-    public void printToFile(BufferedWriter outputFile) throws IOException {
+    public void print(BufferedWriter outputFile) throws IOException {
         for (String str : errorList) {
             outputFile.write(str + "\n");
         }
