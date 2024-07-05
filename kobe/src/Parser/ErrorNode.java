@@ -3,7 +3,7 @@ package Parser;
 import java.util.HashMap;
 
 public class ErrorNode extends ASTNode {
-    private ErrorType errorType;
+    private final ErrorType errorType;
     private final int lineNum;
 
     public ErrorNode(ErrorType errorType, int lineNum, ASTNode parent, int depth) {
@@ -12,7 +12,8 @@ public class ErrorNode extends ASTNode {
         this.lineNum = lineNum;
     }
 
-    public String toString(HashMap<ErrorType, String> errorType2Symbol) {
-        return lineNum + " " + errorType2Symbol.get(errorType);
+    @Override
+    public String toString() {
+        return lineNum + " " + errorType;
     }
 }

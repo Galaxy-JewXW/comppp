@@ -37,10 +37,6 @@ public class ASTNode {
         children.add(child);
     }
 
-    public ASTNode getParent() {
-        return parent;
-    }
-
     public ArrayList<ASTNode> getChildren() {
         return children;
     }
@@ -63,18 +59,6 @@ public class ASTNode {
         } else {
             return "<" + grammerSymbol + ">";
         }
-    }
-
-    public boolean needOutput() {
-        return !(this.grammerSymbol == GrammarSymbol.BlockItem || this.grammerSymbol == GrammarSymbol.BType ||
-                this.grammerSymbol == GrammarSymbol.Decl);
-    }
-
-    // remove the last child from children and return it
-    public ASTNode removeLastChild() {
-        ASTNode lastChild = children.get(children.size() - 1);
-        children.remove(children.size() - 1);
-        return lastChild;
     }
 
     public void setDepth(int depth) {
@@ -107,7 +91,4 @@ public class ASTNode {
         System.out.println(this.toString() + " Children is" + sb.toString());
     }
 
-//    public ASTNode getLastChild() {
-//        return children.get(children.size() - 1);
-//    }
 }

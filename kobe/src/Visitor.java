@@ -11,12 +11,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Visitor {
-    private ASTNode root;
     private SymbolTable curSymbolTable; // 当前符号表
     private ArrayList<String> errorList; // 错误列表
     private ArrayList<Integer> curDimensions; // 当前维度列表(visitConstDef用)
     private ConstValue curConstValue; // 当前需要赋值的常量值(visitConstInitVal用)
-    private Value curValue; // 当前需要赋值的变量值(visitInitVal用)
     private boolean isMultiArrayInit; // 多维数组初始化(visitConstInitVal和visitInitVal用)
     private boolean isConstant; // 当前是否为常量(visitConstExp用)
     private int curInt; // 当前得到的整数(visitConstExp用)
@@ -27,10 +25,8 @@ public class Visitor {
     private boolean debug; // 是否开启debug模式
     private TableEntry curTableEntry; // 分析左值的时候用
     private int inFor; // 解析for循环的时候用
-    private ArrayList<TableEntry> funcRParams; // 分析函数实参时用
 
     public Visitor(ASTNode root, boolean debug) {
-        this.root = root;
         this.curSymbolTable = new SymbolTable(null, true);
         this.errorList = new ArrayList<>();
 
@@ -44,7 +40,6 @@ public class Visitor {
         this.debug = debug;
         this.inFor = 0;
         this.curTableEntry = null;
-        this.funcRParams = new ArrayList<>();
     }
 
     // CompUnit -> {Decl} {FuncDef} MainFuncDef
@@ -623,7 +618,7 @@ public class Visitor {
                 rightNum++;
                 visitExp(node.getChild(i));
             }
-            if (count != rightNum) {
+            if (count >= 0 && count != rightNum) {
                 errorList.add(new ErrorNode(ErrorType.PrintfFormatStrNumNotMatch,
                         first.getToken().getLine(), null, 0)
                         .toString());
@@ -1074,6 +1069,7 @@ public class Visitor {
         for (String str : errorList) {
             outputFile.write(str + "\n");
         }
+        outputFile.flush();
     }
 
 }
