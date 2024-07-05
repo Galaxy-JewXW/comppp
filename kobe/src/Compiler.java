@@ -3,8 +3,6 @@ import Parser.ASTNode;
 import Parser.Parser;
 
 import java.io.*;
-import java.util.HashMap;
-import Parser.ErrorType;
 
 public class Compiler {
     public static void main(String[] args) throws IOException {

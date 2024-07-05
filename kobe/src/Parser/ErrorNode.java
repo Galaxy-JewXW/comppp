@@ -1,11 +1,10 @@
 package Parser;
 
-import Lexer.Token;
 import java.util.HashMap;
 
 public class ErrorNode extends ASTNode {
     private ErrorType errorType;
-    private int lineNum;
+    private final int lineNum;
 
     public ErrorNode(ErrorType errorType, int lineNum, ASTNode parent, int depth) {
         super(GrammarSymbol.Error, parent, depth);
