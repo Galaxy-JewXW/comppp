@@ -28,7 +28,6 @@ public class Compiler {
     public static void main(String[] args) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("testfile.txt"));
         BufferedWriter output = new BufferedWriter(new FileWriter("output.txt"));
-        BufferedWriter output1 = new BufferedWriter(new FileWriter("output_word.txt"));
         BufferedWriter output2 = new BufferedWriter(new FileWriter("error.txt"));
         Lexer lexer = new Lexer(reader);
         lexer.tokenize();
@@ -39,7 +38,5 @@ public class Compiler {
         Visitor visitor = new Visitor(root, true, errorType2Symbol);
         visitor.visitCompUnit(root);
         visitor.printToFile(output2);
-
-
     }
 }
