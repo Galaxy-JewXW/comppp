@@ -8,7 +8,7 @@ public class ErrorNode extends ASTNode {
     private int lineNum;
 
     public ErrorNode(ErrorType errorType, int lineNum, ASTNode parent, int depth) {
-        super(GrammerSymbol.Error, parent, depth);
+        super(GrammarSymbol.Error, parent, depth);
         this.errorType = errorType;
         this.lineNum = lineNum;
     }
