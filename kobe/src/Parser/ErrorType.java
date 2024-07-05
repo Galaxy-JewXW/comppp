@@ -1,17 +1,28 @@
 package Parser;
 
 public enum ErrorType {
-    IllegalChar, // a
-    IdentRedefined, // b
-    IdentUndefined, // c
-    ParaNumNotMatch, // d
-    ParaTypeNotMatch, // e
-    ReturnTypeError, // f
-    ReturnMissing, // g
-    ConstAssign, // h
-    SEMICNMissing, // i
-    RPARENTMissing, // j
-    RBRACKMissing, // k
-    PrintfFormatStrNumNotMatch, // l
-    BreakContinueNotInLoop, // m
+    IllegalChar("a"), // a
+    IdentRedefined("b"), // b
+    IdentUndefined("c"), // c
+    ParaNumNotMatch("d"), // d
+    ParaTypeNotMatch("e"), // e
+    ReturnTypeError("f"), // f
+    ReturnMissing("g"), // g
+    ConstAssign("h"), // h
+    SEMICNMissing("i"), // i
+    RPARENTMissing("j"), // j
+    RBRACKMissing("k"), // k
+    PrintfFormatStrNumNotMatch("l"), // l
+    BreakContinueNotInLoop("m"); // m
+
+    private final String name;
+
+    ErrorType(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

@@ -11,14 +11,11 @@ public class Parser {
     private int tokenPos;
     private ArrayList<Token> allTokens;
     private int tokenLen;
-    private boolean debug;
 
-    public Parser(ArrayList<Token> allTokens, boolean debug) {
+    public Parser(ArrayList<Token> allTokens) {
         this.tokenLen = allTokens.size();
         this.tokenPos = 0;
         this.allTokens = allTokens;
-        this.debug = debug;
-        // this.curToken = curToken();
     }
 
     public void nextToken() {
@@ -26,9 +23,6 @@ public class Parser {
     }
 
     public Token curToken() {
-        // if (debug) {
-        //     System.out.println("curToken called with tokenPos: " + tokenPos);
-        // }
         return allTokens.get(tokenPos);
     }
 
@@ -578,22 +572,12 @@ public class Parser {
     public ASTNode parseBlock(int depth) {
         ASTNode block = new ASTNode(GrammarSymbol.Block, null, depth);
         ASTNode child;
-        if (debug) {
-            System.out.println("Enter Block: " + curToken().getValue());
-        }
 
         // '{'
         if (!Objects.equals(curToken().getType(), Token.Type.LBRACE)) {
             throw new IllegalArgumentException("Block should start with \"{\"");
         }
         addCurToken(block, depth);
-        if (debug) {
-            System.out.println("Enter Block After {: " + curToken().getValue() + " " +
-                    curToken().getType());
-            System.out.println("tokenPos is " + tokenPos);
-            System.out.println("allTokens size is " + allTokens.size());
-
-        }
 
         // { BlockItem }
         while (curToken().getType() != Token.Type.RBRACE) {
@@ -612,9 +596,6 @@ public class Parser {
     public ASTNode parseBlockItem(int depth) {
         ASTNode blockItem = new ASTNode(GrammarSymbol.BlockItem, null, depth);
         ASTNode child;
-        if (debug) {
-            System.out.println("Enter BlockItem: " + curToken().getValue());
-        }
         if (curToken().getType() == Token.Type.CONSTTK || curToken().getType() == Token.Type.INTTK) {
             child = parseDecl(depth + 1);
             child.setParent(blockItem);

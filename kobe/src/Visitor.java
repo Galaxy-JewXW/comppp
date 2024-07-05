@@ -8,13 +8,11 @@ import Parser.GrammarSymbol;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class Visitor {
     private ASTNode root;
     private SymbolTable curSymbolTable; // 当前符号表
-    private HashMap<ErrorType, String> errorType2Symbol; // 错误类型到符号的映射
     private ArrayList<String> errorList; // 错误列表
     private ArrayList<Integer> curDimensions; // 当前维度列表(visitConstDef用)
     private ConstValue curConstValue; // 当前需要赋值的常量值(visitConstInitVal用)
@@ -31,10 +29,9 @@ public class Visitor {
     private int inFor; // 解析for循环的时候用
     private ArrayList<TableEntry> funcRParams; // 分析函数实参时用
 
-    public Visitor(ASTNode root, boolean debug, HashMap<ErrorType, String> errorType2Symbol) {
+    public Visitor(ASTNode root, boolean debug) {
         this.root = root;
         this.curSymbolTable = new SymbolTable(null, true);
-        this.errorType2Symbol = errorType2Symbol;
         this.errorList = new ArrayList<>();
 
         this.curDimensions = new ArrayList<>();
@@ -88,7 +85,7 @@ public class Visitor {
         }
         ASTNode lastChild = node.getChildren().get(node.getChildren().size() - 1);
         if (lastChild instanceof ErrorNode errorNode) {
-            errorList.add(errorNode.toString(errorType2Symbol));
+            errorList.add(errorNode.toString());
         }
     }
 
@@ -100,7 +97,7 @@ public class Visitor {
         ASTNode ident = node.getChild(0);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
             errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
-                    .getLine(), null, 0).toString(errorType2Symbol));
+                    .getLine(), null, 0).toString());
         } else {
             int i = 1;
             int length = node.getChildren().size();
@@ -117,7 +114,7 @@ public class Visitor {
                 curDimensions.add(curInt);
 
                 if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
-                    errorList.add(errorNode.toString(errorType2Symbol));
+                    errorList.add(errorNode.toString());
                 }
                 i += 3;
             }
@@ -219,7 +216,7 @@ public class Visitor {
         }
         ASTNode lastChild = node.getChildren().get(node.getChildren().size() - 1);
         if (lastChild instanceof ErrorNode errorNode) {
-            errorList.add(errorNode.toString(errorType2Symbol));
+            errorList.add(errorNode.toString());
         }
     }
 
@@ -231,7 +228,7 @@ public class Visitor {
         ASTNode ident = node.getChild(0);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
             errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
-                    .getLine(), null, 0).toString(errorType2Symbol));
+                    .getLine(), null, 0).toString());
         } else {
             int i = 1;
             int length = node.getChildren().size();
@@ -245,7 +242,7 @@ public class Visitor {
                 curDimensions.add(curInt);
 
                 if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
-                    errorList.add(errorNode.toString(errorType2Symbol));
+                    errorList.add(errorNode.toString());
                 }
                 i += 3;
             }
@@ -295,7 +292,7 @@ public class Visitor {
         TableEntry funcEntry = new TableEntry();
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
             errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
-                    .getLine(), null, 0).toString(errorType2Symbol));
+                    .getLine(), null, 0).toString());
         } else {
             // Create a new func symbol table
             SymbolTable funcSymbolTable = new SymbolTable(curSymbolTable, false);
@@ -322,7 +319,7 @@ public class Visitor {
 
             // j mistake
             if (node.getChild(-2) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
 
             // Bool change
@@ -333,7 +330,7 @@ public class Visitor {
             visitBlock(node.getChild(-1), true);
 
             if (curFuncType == FuncType.IntFunc && (!receiveReturn)) {
-                errorList.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0).toString(errorType2Symbol));
+                errorList.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0).toString());
             }
 
             // recover curSymbolTable
@@ -367,7 +364,7 @@ public class Visitor {
 
         if (!receiveReturn) {
             errorList.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum,
-                    null, 0).toString(errorType2Symbol));
+                    null, 0).toString());
         }
 
         // recover
@@ -387,7 +384,7 @@ public class Visitor {
             funcFParam = visitFuncFParam(node.getChild(i));
 //           if (curSymbolTable.containsEntry(funcFParam.getName())) {
 //               errorList.add(new ErrorNode(ErrorType.IdentRedefined, funcFParam.getNode()
-//                       .getToken().getLine(), null, 0).toString(errorType2Symbol));
+//                       .getToken().getLine(), null, 0).toString());
 //           } else {
             curSymbolTable.addEntry(funcFParam.getName(), funcFParam);
 //            }
@@ -403,7 +400,7 @@ public class Visitor {
         ASTNode ident = node.getChild(1);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 保证形参没有重名
             errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
-                    .getLine(), null, 0).toString(errorType2Symbol));
+                    .getLine(), null, 0).toString());
         }
 
         if (node.getChildrenSize() == 2) { // BType Ident
@@ -411,7 +408,7 @@ public class Visitor {
         }
         else if (node.getChildrenSize() == 4) {
             if (node.getChild(3) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
 
             return new TableEntry(ident, new Array1(), true);
@@ -420,11 +417,11 @@ public class Visitor {
             // 获取第二维数
             visitConstExp(node.getChild(5));
             if (node.getChild(3) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
 
             if (node.getChild(6) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
 
             return new TableEntry(ident, new Array2(curInt), true);
@@ -498,7 +495,7 @@ public class Visitor {
                 // h ConstantAssign
                 // LineNumber: LVal -> Ident {'[' Exp ']'}
                 errorList.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
-                        null, 0).toString(errorType2Symbol));
+                        null, 0).toString());
             }
             if (Objects.equals(node.getChild(2).getGrammarSymbol(), GrammarSymbol.Exp)) {
                 // LVal '=' Exp ';'
@@ -506,13 +503,13 @@ public class Visitor {
             } else { // LVal '=' 'getint''('')'';'
                 // j : RPARENTMissing
                 if (node.getChild(4) instanceof ErrorNode errorNode) {
-                    errorList.add(errorNode.toString(errorType2Symbol));
+                    errorList.add(errorNode.toString());
                 }
             }
 
             // i: SEMICNMissing
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
         } else if (Objects.equals(first.getGrammarSymbol(), GrammarSymbol.Block)) {
             if (debug) {
@@ -535,7 +532,7 @@ public class Visitor {
             }
 
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
         } else if (first.getToken().getType().equals(Token.Type.IFTK)) {
             if (debug) {
@@ -545,7 +542,7 @@ public class Visitor {
             visitCond(node.getChild(2));
 
             if (node.getChild(3) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
 
             visitStmt(node.getChild(4), inFuncBlock);
@@ -566,7 +563,7 @@ public class Visitor {
                     visitCond(node.getChild(i));
                 }
                 else if (node.getChild(i) instanceof ErrorNode errorNode) {
-                    errorList.add(errorNode.toString(errorType2Symbol));
+                    errorList.add(errorNode.toString());
                 }
                 else if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.Stmt)) {
                     visitStmt(node.getChild(i), inFuncBlock);
@@ -582,10 +579,10 @@ public class Visitor {
             if (inFor == 0) {
                 errorList.add(new ErrorNode(ErrorType.BreakContinueNotInLoop,
                         first.getToken().getLine(), null, 0)
-                        .toString(errorType2Symbol));
+                        .toString());
             }
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
         } else if (first.getToken().getType().equals(Token.Type.RETURNTK)) {
             if (debug) {
@@ -597,7 +594,7 @@ public class Visitor {
             if (curFuncType == FuncType.VoidFunc &&
                     Objects.equals(node.getChild(1).getGrammarSymbol(), GrammarSymbol.Exp)) {
                 errorList.add(new ErrorNode(ErrorType.ReturnTypeError, first.getToken().getLine(),
-                        null, 0).toString(errorType2Symbol));
+                        null, 0).toString());
             }
 
             if (Objects.equals(node.getChild(1).getGrammarSymbol(), GrammarSymbol.Exp)) {
@@ -605,7 +602,7 @@ public class Visitor {
             }
 
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
         } else if (first.getToken().getType().equals(Token.Type.PRINTFTK)) {
             if (debug) {
@@ -619,7 +616,7 @@ public class Visitor {
             }
             if (count < 0) {
                 errorList.add(new ErrorNode(ErrorType.IllegalChar, formatStr.getToken().getLine(),
-                        null, 0).toString(errorType2Symbol));
+                        null, 0).toString());
             }
             int rightNum = 0;
             for (int i = 4; i < node.getChildrenSize() - 2; i += 2) {
@@ -629,17 +626,17 @@ public class Visitor {
             if (count != rightNum) {
                 errorList.add(new ErrorNode(ErrorType.PrintfFormatStrNumNotMatch,
                         first.getToken().getLine(), null, 0)
-                        .toString(errorType2Symbol));
+                        .toString());
             }
 
             // '('
             if (node.getChild(-2) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
 
             // ';'
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
         } else {
             throw new RuntimeException("Stmt No Match Condition!!!!");
@@ -689,7 +686,7 @@ public class Visitor {
             // h ConstantAssign
             // LineNumber: LVal -> Ident {'[' Exp ']'}
             errorList.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
-                    null, 0).toString(errorType2Symbol));
+                    null, 0).toString());
         }
         visitExp(node.getChild(-1));
     }
@@ -713,7 +710,7 @@ public class Visitor {
             // '(' Exp ')'
             visitExp(node.getChild(1));
             if (node.getChild(-1) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
         }
         else if (Objects.equals(node.getChild(0).getGrammarSymbol(), GrammarSymbol.LVal)) {
@@ -753,7 +750,7 @@ public class Visitor {
         ASTNode ident = node.getChild(0);
         if (!curSymbolTable.nameExisted(ident.getToken().getValue())) {
             errorList.add(new ErrorNode(ErrorType.IdentUndefined, ident.getToken()
-                    .getLine(), null, 0).toString(errorType2Symbol));
+                    .getLine(), null, 0).toString());
             curInt = 0; // ???
             curTableEntry = null;
         } else {
@@ -779,7 +776,7 @@ public class Visitor {
                     int v1 = curInt;
 
                     if (node.getChild(3) instanceof ErrorNode errorNode) { // k mistake
-                        errorList.add(errorNode.toString(errorType2Symbol));
+                        errorList.add(errorNode.toString());
                     }
 
                     TableEntry referencedTableEntry = null;
@@ -815,7 +812,7 @@ public class Visitor {
                         int v2 = curInt;
 
                         if (node.getChild(6) instanceof ErrorNode errorNode) {
-                            errorList.add(errorNode.toString(errorType2Symbol));
+                            errorList.add(errorNode.toString());
                         }
 
                         if (isConstant) {
@@ -886,7 +883,7 @@ public class Visitor {
         else if (Objects.equals(first.getToken().getType(), Token.Type.IDENFR)) {
             if (!curSymbolTable.nameExisted(first.getToken().getValue())) { // Undefined Ident
                 errorList.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
-                        .getLine(), null, 0).toString(errorType2Symbol));
+                        .getLine(), null, 0).toString());
                 curInt = 0;
                 curTableEntry = null;
             } else {
@@ -895,7 +892,7 @@ public class Visitor {
                     // 如果没有参数
                     if (tableEntry.funcParamsNum() > 0) {
                         errorList.add(new ErrorNode(ErrorType.ParaNumNotMatch, first.getToken().getLine(),
-                                null, 0).toString(errorType2Symbol));
+                                null, 0).toString());
                         curInt = 0;
                         curTableEntry = null;
                         return;
@@ -916,7 +913,7 @@ public class Visitor {
 
             // j mistake
             if (node.getChild(-1) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString(errorType2Symbol));
+                errorList.add(errorNode.toString());
             }
 
 
@@ -934,7 +931,7 @@ public class Visitor {
                 System.out.println("ParamErrorHelper rParamSize is " + rParamSize);
             }
             errorList.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
-                    null, 0).toString(errorType2Symbol));
+                    null, 0).toString());
             return true;
         }
 
@@ -949,7 +946,7 @@ public class Visitor {
             }
             if (!tableEntry.getFuncRParam(i).hasSameType(definedFuncParams.get(i))) {
                 errorList.add(new ErrorNode(ErrorType.ParaTypeNotMatch, lineNum,
-                        null, 0).toString(errorType2Symbol));
+                        null, 0).toString());
                 return true;
             }
         }

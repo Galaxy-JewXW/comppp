@@ -7,35 +7,16 @@ import java.util.HashMap;
 import Parser.ErrorType;
 
 public class Compiler {
-    private static final HashMap<ErrorType, String> errorType2Symbol = new HashMap<>();
-
-    private static void initMap() {
-        errorType2Symbol.put(ErrorType.IllegalChar, "a");
-        errorType2Symbol.put(ErrorType.IdentRedefined, "b");
-        errorType2Symbol.put(ErrorType.IdentUndefined, "c");
-        errorType2Symbol.put(ErrorType.ParaNumNotMatch, "d");
-        errorType2Symbol.put(ErrorType.ParaTypeNotMatch, "e");
-        errorType2Symbol.put(ErrorType.ReturnTypeError, "f");
-        errorType2Symbol.put(ErrorType.ReturnMissing, "g");
-        errorType2Symbol.put(ErrorType.ConstAssign, "h");
-        errorType2Symbol.put(ErrorType.SEMICNMissing, "i"); // ; missing
-        errorType2Symbol.put(ErrorType.RPARENTMissing, "j"); // ) missing
-        errorType2Symbol.put(ErrorType.RBRACKMissing, "k"); // ] missing
-        errorType2Symbol.put(ErrorType.PrintfFormatStrNumNotMatch, "l");
-        errorType2Symbol.put(ErrorType.BreakContinueNotInLoop, "m");
-    }
-
     public static void main(String[] args) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("testfile.txt"));
         BufferedWriter output = new BufferedWriter(new FileWriter("output.txt"));
         BufferedWriter output2 = new BufferedWriter(new FileWriter("error.txt"));
         Lexer lexer = new Lexer(reader);
         lexer.tokenize();
-        Parser parser = new Parser(lexer.getTokens(), false);
+        Parser parser = new Parser(lexer.getTokens());
         ASTNode root = parser.parse();
         parser.printAST(root, output);
-        Compiler.initMap();
-        Visitor visitor = new Visitor(root, true, errorType2Symbol);
+        Visitor visitor = new Visitor(root, true);
         visitor.visitCompUnit(root);
         visitor.printToFile(output2);
     }
