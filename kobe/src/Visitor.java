@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Visitor {
-    private ASTNode root;
+    private final ASTNode root;
     private SymbolTable curSymbolTable= new SymbolTable(null, true);
-    private ArrayList<String> errors = new ArrayList<>();
-    private ArrayList<Integer> curDimensions = new ArrayList<>();
+    private final ArrayList<String> errors = new ArrayList<>();
+    private final ArrayList<Integer> curDimensions = new ArrayList<>();
     private ConstValue curConstValue;
     private boolean isMultiArrayInit = false;
     private boolean isConstant = false;
@@ -19,7 +19,7 @@ public class Visitor {
     private boolean createSTableBeforeBlock = false;
     private FuncType curFuncType;
     private int funcEndLineNum;
-    private boolean debug;
+    private final boolean debug;
     private TableEntry curTableEntry = null;
     private int forLevel = 0;
 
@@ -232,11 +232,11 @@ public class Visitor {
                 visitInitVal(node.getChild(-1));
             }
 
-            if (curDimensions.size() == 0) { // VarDef -> Ident
+            if (curDimensions.isEmpty()) { // VarDef -> Ident
                 TableEntry varEntry = new TableEntry(ident, new Var(), false);
                 curSymbolTable.addEntry(ident.getToken().getValue(), varEntry);
             } else if (curDimensions.size() == 1){ // VarDef -> Ident [] '=' InitVal
-                TableEntry array1Entry = new TableEntry(ident, new Array1(curDimensions.get(0)), false);;
+                TableEntry array1Entry = new TableEntry(ident, new Array1(curDimensions.get(0)), false);
                 curSymbolTable.addEntry(ident.getToken().getValue(), array1Entry);
             } else if (curDimensions.size() == 2) {
                 TableEntry array2Entry = new TableEntry(ident, new Array2(curDimensions.get(0),
@@ -497,8 +497,7 @@ public class Visitor {
                 System.out.println("Visitor From Stmt Enter Block");
             }
             // Stmt -> Block
-            SymbolTable blockTable = new SymbolTable(curSymbolTable, false);
-            curSymbolTable = blockTable;
+            curSymbolTable = new SymbolTable(curSymbolTable, false);
             createSTableBeforeBlock = true;
             visitBlock(first, inFuncBlock);
             curSymbolTable = curSymbolTable.getParent();
@@ -735,7 +734,6 @@ public class Visitor {
             curInt = 0; // ???
             curTableEntry = null;
         } else {
-            int i = 1;
             int length = node.getChildren().size(); // 1 or 4 or 7
 
             TableEntry tableEntry = curSymbolTable.getEntry(ident.getToken().getValue());
@@ -754,13 +752,13 @@ public class Visitor {
                     ASTNode exp1 = node.getChild(2);
                     visitExp(exp1);
 
-                    int v1 = curInt;
+                    int v1;
 
                     if (node.getChild(3) instanceof ErrorNode errorNode) { // k mistake
                         errors.add(errorNode.toString());
                     }
 
-                    TableEntry referencedTableEntry = null;
+                    TableEntry referencedTableEntry;
                     // 计算实际类型
                     // 若原符号表中为a[2][3]，则可以引用a[0]但实际上a[0]的actualType为array1 ??? 不太懂
                     if (length == 4) {
@@ -958,10 +956,8 @@ public class Visitor {
         if (node.getChildrenSize() == 1) {
             visitMulExp(node.getChild(0));
         } else {
-            int leftNum = 0;
             visitAddExp(node.getChild(0));
-            leftNum = curInt;
-
+            int leftNum = curInt;
             visitMulExp(node.getChild(2));
             if (isConstant) { // 只有在为常量时需要做简化
                 if (node.getChild(1).getToken().getType() == Lexer.Token.Type.PLUS) {
