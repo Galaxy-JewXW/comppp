@@ -8,21 +8,20 @@ import java.util.Objects;
 
 public class Visitor {
     private ASTNode root;
-    private SymbolTable curSymbolTable= new SymbolTable(null, true);; // 当前符号表
-    private ArrayList<String> errorList = new ArrayList<>(); // 错误列表
-    private ArrayList<Integer> curDimensions = new ArrayList<>(); // 当前维度列表(visitConstDef用)
-    private ConstValue curConstValue; // 当前需要赋值的常量值(visitConstInitVal用)
-    private boolean isMultiArrayInit = false; // 多维数组初始化(visitConstInitVal和visitInitVal用)
-    private boolean isConstant = false; // 当前是否为常量(visitConstExp用)
-    private int curInt; // 当前得到的整数(visitConstExp用)
-    private boolean receiveReturn = false; // 当前函数是否有返回值(visitBlock & visitFuncDef用)
-    private boolean createSTableBeforeBlock = false; // 是否在Block前创建符号表(visitBlock & visitFuncDef用)
-    private FuncType curFuncType; // 当前函数的返回值类型(visitFuncDef用)
-    private int funcEndLineNum; // 函数结束的行号(visitFuncDef用)
-    private boolean debug; // 是否开启debug模式
-    private TableEntry curTableEntry = null; // 分析左值的时候用
-    private int inFor = 0; // 解析for循环的时候用
-    private ArrayList<TableEntry> funcRParams = new ArrayList<>(); // 分析函数实参时用
+    private SymbolTable curSymbolTable= new SymbolTable(null, true);
+    private ArrayList<String> errors = new ArrayList<>();
+    private ArrayList<Integer> curDimensions = new ArrayList<>();
+    private ConstValue curConstValue;
+    private boolean isMultiArrayInit = false;
+    private boolean isConstant = false;
+    private int curInt;
+    private boolean receiveReturn = false;
+    private boolean createSTableBeforeBlock = false;
+    private FuncType curFuncType;
+    private int funcEndLineNum;
+    private boolean debug;
+    private TableEntry curTableEntry = null;
+    private int forLevel = 0;
 
     public Visitor(ASTNode root, boolean debug) {
         this.root = root;
@@ -33,9 +32,6 @@ public class Visitor {
 
     // CompUnit -> {Decl} {FuncDef} MainFuncDef
     public void visitCompUnit() {
-        if (debug) {
-            System.out.println("Visitor Enter CompUnit");
-        }
         for (ASTNode child : root.getChildren()) {
             if (child.getGrammarSymbol() == GrammarSymbol.Decl) {
                 visitDecl(child);
@@ -60,7 +56,7 @@ public class Visitor {
     }
 
     // ConstDecl -> 'const' BType ConstDef { ',' ConstDef } ';'
-    // i => Parser.ErrorType: MissingSEMICN
+    // i -> Parser.ErrorType: MissingSEMICN
     public void visitConstDecl(ASTNode node) {
         int i = 2;
         while (i < node.getChildren().size() - 1) {
@@ -69,18 +65,18 @@ public class Visitor {
         }
         ASTNode lastChild = node.getChildren().get(node.getChildren().size() - 1);
         if (lastChild instanceof ErrorNode errorNode) {
-            errorList.add(errorNode.toString());
+            errors.add(errorNode.toString());
         }
     }
 
     // ConstDef -> Ident { '[' ConstExp ']' } '=' ConstInitVal
-    // b => Parser.ErrorType: IdentRedefined
-    // k => Parser.ErrorType: RBRACKMissing
+    // b -> Parser.ErrorType: IdentRedefined
+    // k -> Parser.ErrorType: RBRACKMissing
     public void visitConstDef(ASTNode node) {
         // Ident
         ASTNode ident = node.getChild(0);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
-            errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
+            errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
         } else {
             int i = 1;
@@ -98,7 +94,7 @@ public class Visitor {
                 curDimensions.add(curInt);
 
                 if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
-                    errorList.add(errorNode.toString());
+                    errors.add(errorNode.toString());
                 }
                 i += 3;
             }
@@ -192,7 +188,7 @@ public class Visitor {
     }
 
     // VarDecl → BType VarDef { ',' VarDef } ';' // i
-    // i => Parser.ErrorType: SEMICNMissing
+    // i -> Parser.ErrorType: SEMICNMissing
     public void visitVarDecl(ASTNode node) {
         int i = 1;
         while (i < node.getChildren().size() - 1) {
@@ -201,18 +197,18 @@ public class Visitor {
         }
         ASTNode lastChild = node.getChildren().get(node.getChildren().size() - 1);
         if (lastChild instanceof ErrorNode errorNode) {
-            errorList.add(errorNode.toString());
+            errors.add(errorNode.toString());
         }
     }
 
     // VarDef → Ident { '[' ConstExp ']' } // b
     //    | Ident { '[' ConstExp ']' } '=' InitVal // k
-    // b => Parser.ErrorType: IdentRedefined
-    // k => Parser.ErrorType: RBRACKMissing
+    // b -> Parser.ErrorType: IdentRedefined
+    // k -> Parser.ErrorType: RBRACKMissing
     public void visitVarDef(ASTNode node) {
         ASTNode ident = node.getChild(0);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
-            errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
+            errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
         } else {
             int i = 1;
@@ -227,7 +223,7 @@ public class Visitor {
                 curDimensions.add(curInt);
 
                 if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
-                    errorList.add(errorNode.toString());
+                    errors.add(errorNode.toString());
                 }
                 i += 3;
             }
@@ -265,9 +261,9 @@ public class Visitor {
     }
 
     // FuncDef -> EntryType.FuncType Ident '(' [FuncFParams] ')' Block // b g j
-    // b => Parser.ErrorType: IdentRedefined
-    // g => Parser.ErrorType: RETURNMissing
-    // j => Parser.ErrorType: RPARENTMissing
+    // b -> Parser.ErrorType: IdentRedefined
+    // g -> Parser.ErrorType: RETURNMissing
+    // j -> Parser.ErrorType: RPARENTMissing
     public void visitFuncDef(ASTNode node) {
         // EntryType.FuncType -- Process Directly
         ASTNode funcType = node.getChild(0).getChild(0);
@@ -276,7 +272,7 @@ public class Visitor {
         // New Entry
         TableEntry funcEntry = new TableEntry();
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
-            errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
+            errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
         } else {
             // Create a new func symbol table
@@ -304,7 +300,7 @@ public class Visitor {
 
             // j mistake
             if (node.getChild(-2) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
 
             // Bool change
@@ -315,7 +311,7 @@ public class Visitor {
             visitBlock(node.getChild(-1), true);
 
             if (curFuncType == FuncType.IntFunc && (!receiveReturn)) {
-                errorList.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0).toString());
+                errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0).toString());
             }
 
             // recover curSymbolTable
@@ -329,8 +325,8 @@ public class Visitor {
     }
 
     // MainFuncDef -> 'int' 'main' '(' ')' Block // g j
-    // g => Parser.ErrorType: ReturnMissing
-    // j => Parser.ErrorType: RPARENTMissing
+    // g -> Parser.ErrorType: ReturnMissing
+    // j -> Parser.ErrorType: RPARENTMissing
     public void visitMainFuncDef(ASTNode node) {
         if (debug) {
             System.out.println("Visitor Enter MainFuncDef");
@@ -348,7 +344,7 @@ public class Visitor {
         visitBlock(node.getChild(-1), true);
 
         if (!receiveReturn) {
-            errorList.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum,
+            errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum,
                     null, 0).toString());
         }
 
@@ -368,7 +364,7 @@ public class Visitor {
         while (i < node.getChildrenSize()) {
             funcFParam = visitFuncFParam(node.getChild(i));
 //           if (curSymbolTable.containsEntry(funcFParam.getName())) {
-//               errorList.add(new ErrorNode(ErrorType.IdentRedefined, funcFParam.getNode()
+//               errors.add(new ErrorNode(ErrorType.IdentRedefined, funcFParam.getNode()
 //                       .getToken().getLine(), null, 0).toString());
 //           } else {
             curSymbolTable.addEntry(funcFParam.getName(), funcFParam);
@@ -379,12 +375,12 @@ public class Visitor {
     }
 
     //  FuncFParam -> BType Ident ['[' ']' { '[' ConstExp ']' }]  //   b k
-    // b => Parser.ErrorType: IdentRedefined
-    // k => Parser.ErrorType: RBRACKMissing
+    // b -> Parser.ErrorType: IdentRedefined
+    // k -> Parser.ErrorType: RBRACKMissing
     public TableEntry visitFuncFParam(ASTNode node) {
         ASTNode ident = node.getChild(1);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 保证形参没有重名
-            errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
+            errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
         }
 
@@ -393,7 +389,7 @@ public class Visitor {
         }
         else if (node.getChildrenSize() == 4) {
             if (node.getChild(3) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
 
             return new TableEntry(ident, new Array1(), true);
@@ -402,11 +398,11 @@ public class Visitor {
             // 获取第二维数
             visitConstExp(node.getChild(5));
             if (node.getChild(3) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
 
             if (node.getChild(6) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
 
             return new TableEntry(ident, new Array2(curInt), true);
@@ -479,7 +475,7 @@ public class Visitor {
             if (curTableEntry.isConst()) {
                 // h ConstantAssign
                 // LineNumber: LVal -> Ident {'[' Exp ']'}
-                errorList.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
+                errors.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
                         null, 0).toString());
             }
             if (Objects.equals(node.getChild(2).getGrammarSymbol(), GrammarSymbol.Exp)) {
@@ -488,13 +484,13 @@ public class Visitor {
             } else { // LVal '=' 'getint''('')'';'
                 // j : RPARENTMissing
                 if (node.getChild(4) instanceof ErrorNode errorNode) {
-                    errorList.add(errorNode.toString());
+                    errors.add(errorNode.toString());
                 }
             }
 
             // i: SEMICNMissing
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
         } else if (Objects.equals(first.getGrammarSymbol(), GrammarSymbol.Block)) {
             if (debug) {
@@ -517,7 +513,7 @@ public class Visitor {
             }
 
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
         } else if (first.getToken().getType().equals(Lexer.Token.Type.IFTK)) {
             if (debug) {
@@ -527,7 +523,7 @@ public class Visitor {
             visitCond(node.getChild(2));
 
             if (node.getChild(3) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
 
             visitStmt(node.getChild(4), inFuncBlock);
@@ -539,7 +535,7 @@ public class Visitor {
                 System.out.println("Visitor From Stmt Enter For Branch");
             }
             // Stmt -> 'for' '('[ForStmt] ';' [Cond] ';' [ForStmt] ')' Stmt
-            inFor++;
+            forLevel++;
             for (int i = 2; i < node.getChildrenSize(); i++) {
                 if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.ForStmt)) {
                     visitForStmt(node.getChild(i));
@@ -548,26 +544,26 @@ public class Visitor {
                     visitCond(node.getChild(i));
                 }
                 else if (node.getChild(i) instanceof ErrorNode errorNode) {
-                    errorList.add(errorNode.toString());
+                    errors.add(errorNode.toString());
                 }
                 else if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.Stmt)) {
                     visitStmt(node.getChild(i), inFuncBlock);
                 }
             }
-            inFor--;
+            forLevel--;
         } else if (first.getToken().getType().equals(Lexer.Token.Type.BREAKTK) ||
                 first.getToken().getType().equals(Lexer.Token.Type.CONTINUETK)) {
             if (debug) {
                 System.out.println("Visitor From Stmt Enter BreakContinue Branch");
             }
             // Stmt -> 'break' ';' | 'continue' ';' // i m
-            if (inFor == 0) {
-                errorList.add(new ErrorNode(ErrorType.BreakContinueNotInLoop,
+            if (forLevel == 0) {
+                errors.add(new ErrorNode(ErrorType.BreakContinueNotInLoop,
                         first.getToken().getLine(), null, 0)
                         .toString());
             }
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
         } else if (first.getToken().getType().equals(Lexer.Token.Type.RETURNTK)) {
             if (debug) {
@@ -578,7 +574,7 @@ public class Visitor {
             // 无返回值的函数存在不匹配的return
             if (curFuncType == FuncType.VoidFunc &&
                     Objects.equals(node.getChild(1).getGrammarSymbol(), GrammarSymbol.Exp)) {
-                errorList.add(new ErrorNode(ErrorType.ReturnTypeError, first.getToken().getLine(),
+                errors.add(new ErrorNode(ErrorType.ReturnTypeError, first.getToken().getLine(),
                         null, 0).toString());
             }
 
@@ -587,7 +583,7 @@ public class Visitor {
             }
 
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
         } else if (first.getToken().getType().equals(Lexer.Token.Type.PRINTFTK)) {
             if (debug) {
@@ -600,7 +596,7 @@ public class Visitor {
                 System.out.println("Stmt printf count is " + count);
             }
             if (count < 0) {
-                errorList.add(new ErrorNode(ErrorType.IllegalChar, formatStr.getToken().getLine(),
+                errors.add(new ErrorNode(ErrorType.IllegalChar, formatStr.getToken().getLine(),
                         null, 0).toString());
             }
             int rightNum = 0;
@@ -609,19 +605,19 @@ public class Visitor {
                 visitExp(node.getChild(i));
             }
             if (count >= 0 && count != rightNum) {
-                errorList.add(new ErrorNode(ErrorType.PrintfFormatStrNumNotMatch,
+                errors.add(new ErrorNode(ErrorType.PrintfFormatStrNumNotMatch,
                         first.getToken().getLine(), null, 0)
                         .toString());
             }
 
             // '('
             if (node.getChild(-2) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
 
             // ';'
             if (last instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
         } else {
             throw new RuntimeException("Stmt No Match Condition!!!!");
@@ -670,7 +666,7 @@ public class Visitor {
         if (curTableEntry.isConst()) {
             // h ConstantAssign
             // LineNumber: LVal -> Ident {'[' Exp ']'}
-            errorList.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
+            errors.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
                     null, 0).toString());
         }
         visitExp(node.getChild(-1));
@@ -695,7 +691,7 @@ public class Visitor {
             // '(' Exp ')'
             visitExp(node.getChild(1));
             if (node.getChild(-1) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
         }
         else if (Objects.equals(node.getChild(0).getGrammarSymbol(), GrammarSymbol.LVal)) {
@@ -728,13 +724,13 @@ public class Visitor {
     }
 
     // LVal → Ident {'[' Exp ']'} // c k
-    // c => Parser.ErrorType: IdentUndefined
-    // k => Parser.ErrorType: RBRACKMissing
+    // c -> Parser.ErrorType: IdentUndefined
+    // k -> Parser.ErrorType: RBRACKMissing
     // Lval 一定是之前已经定义过的变量
     public void visitLval(ASTNode node) { // 该函数的返回值传回curTableEntry
         ASTNode ident = node.getChild(0);
         if (!curSymbolTable.nameExisted(ident.getToken().getValue())) {
-            errorList.add(new ErrorNode(ErrorType.IdentUndefined, ident.getToken()
+            errors.add(new ErrorNode(ErrorType.IdentUndefined, ident.getToken()
                     .getLine(), null, 0).toString());
             curInt = 0; // ???
             curTableEntry = null;
@@ -761,7 +757,7 @@ public class Visitor {
                     int v1 = curInt;
 
                     if (node.getChild(3) instanceof ErrorNode errorNode) { // k mistake
-                        errorList.add(errorNode.toString());
+                        errors.add(errorNode.toString());
                     }
 
                     TableEntry referencedTableEntry = null;
@@ -797,7 +793,7 @@ public class Visitor {
                         int v2 = curInt;
 
                         if (node.getChild(6) instanceof ErrorNode errorNode) {
-                            errorList.add(errorNode.toString());
+                            errors.add(errorNode.toString());
                         }
 
                         if (isConstant) {
@@ -832,10 +828,10 @@ public class Visitor {
 
     // UnaryExp -> PrimaryExp | Ident '(' [FuncRParams] ')' // c d e j
     //        | UnaryOp UnaryExp
-    // c ==> Parser.IdentUndefined
-    // d ==> Parser.ParaNumNotMatch
-    // e ==> Parser.ParaTypeNotMatch
-    // j ==> Parser.RPARENTMissing
+    // c =-> Parser.IdentUndefined
+    // d =-> Parser.ParaNumNotMatch
+    // e =-> Parser.ParaTypeNotMatch
+    // j =-> Parser.RPARENTMissing
     public void visitUnaryExp(ASTNode node) {
         if (debug) {
             System.out.println("Visitor Enter UnaryExp");
@@ -867,7 +863,7 @@ public class Visitor {
         }
         else if (Objects.equals(first.getToken().getType(), Lexer.Token.Type.IDENFR)) {
             if (!curSymbolTable.nameExisted(first.getToken().getValue())) { // Undefined Ident
-                errorList.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
+                errors.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
                         .getLine(), null, 0).toString());
                 curInt = 0;
                 curTableEntry = null;
@@ -876,7 +872,7 @@ public class Visitor {
                 if (!Objects.equals(node.getChild(2).getGrammarSymbol(), GrammarSymbol.FuncRParams)) {
                     // 如果没有参数
                     if (tableEntry.funcParamsNum() > 0) {
-                        errorList.add(new ErrorNode(ErrorType.ParaNumNotMatch, first.getToken().getLine(),
+                        errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, first.getToken().getLine(),
                                 null, 0).toString());
                         curInt = 0;
                         curTableEntry = null;
@@ -898,7 +894,7 @@ public class Visitor {
 
             // j mistake
             if (node.getChild(-1) instanceof ErrorNode errorNode) {
-                errorList.add(errorNode.toString());
+                errors.add(errorNode.toString());
             }
 
 
@@ -909,18 +905,18 @@ public class Visitor {
 
     private boolean ParamErrorHelper(TableEntry tableEntry, int lineNum) {
         int rParamSize = tableEntry.getFuncRParamsNum();
-        // d ==> Parser.ParaNumNotMatch
+        // d =-> Parser.ParaNumNotMatch
         if (tableEntry.funcParamsNum() != rParamSize) {
             if (debug) {
                 System.out.println("ParamErrorHelper tableEntry.funcParamsNum() is " + tableEntry.funcParamsNum());
                 System.out.println("ParamErrorHelper rParamSize is " + rParamSize);
             }
-            errorList.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
+            errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
                     null, 0).toString());
             return true;
         }
 
-        // e ==> Parser.ParaTypeNotMatch
+        // e =-> Parser.ParaTypeNotMatch
         ArrayList<FuncParam> definedFuncParams = tableEntry.getFuncParams();
         for (int i = 0; i < rParamSize; i++) {
             if (debug) {
@@ -930,7 +926,7 @@ public class Visitor {
                 System.out.println("ParamErrorHelper funcRParams.get(i) is " + tableEntry.getFuncRParam(i));
             }
             if (!tableEntry.getFuncRParam(i).hasSameType(definedFuncParams.get(i))) {
-                errorList.add(new ErrorNode(ErrorType.ParaTypeNotMatch, lineNum,
+                errors.add(new ErrorNode(ErrorType.ParaTypeNotMatch, lineNum,
                         null, 0).toString());
                 return true;
             }
@@ -1044,7 +1040,7 @@ public class Visitor {
     }
 
     public void print(BufferedWriter outputFile) throws IOException {
-        for (String str : errorList) {
+        for (String str : errors) {
             outputFile.write(str + "\n");
         }
         outputFile.flush();
