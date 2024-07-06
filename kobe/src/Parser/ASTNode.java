@@ -2,6 +2,8 @@ package Parser;
 
 import Lexer.Token;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ASTNode {
@@ -76,7 +78,6 @@ public class ASTNode {
         return children.size();
     }
 
-    // get token
     public Token getToken() {
         return token;
     }
@@ -91,4 +92,19 @@ public class ASTNode {
         System.out.println(this.toString() + " Children is" + sb.toString());
     }
 
+    public static void printAST(ASTNode root, BufferedWriter output) throws IOException {
+        if (root.isLeaf()) {
+            output.write(root + "\n");
+            return;
+        }
+        for (ASTNode child : root.getChildren()) {
+            printAST(child, output);
+        }
+        if (root.getGrammarSymbol() != GrammarSymbol.BlockItem
+                && root.getGrammarSymbol() != GrammarSymbol.BType
+                && root.getGrammarSymbol() != GrammarSymbol.Decl) {
+            output.write(root + "\n");
+        }
+        output.flush();
+    }
 }

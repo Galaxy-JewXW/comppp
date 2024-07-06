@@ -229,7 +229,7 @@ public class TableEntry {
 
     public int getD2ForArray2() {
         if (tableEntryType == TableEntryType.Array2) {
-            return array2.getD2();
+            return array2.getDimension2();
         } else if (tableEntryType == TableEntryType.ConstArray2) {
             return constArray2.getD2();
         } else {

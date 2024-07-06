@@ -2,21 +2,21 @@ public class ReferencedEntry {
     private TableEntryType actualType;
     private TableEntryType referencedType;
 
-    private int d1; // ident[d1]
-    private int d2; // ident[d1][d2]
+    private final int dimension1; // ident[d1]
+    private final int dimension2; // ident[d1][dimension2]
 
-    public ReferencedEntry(TableEntryType actualType, TableEntryType referencedType, int d1, int d2) {
+    public ReferencedEntry(TableEntryType actualType, TableEntryType referencedType, int dimension1, int dimension2) {
         this.actualType = actualType;
         this.referencedType = referencedType;
-        this.d1 = d1;
-        this.d2 = d2;
+        this.dimension1 = dimension1;
+        this.dimension2 = dimension2;
     }
 
-    public ReferencedEntry(TableEntryType actualType, TableEntryType referencedType, int d1) {
+    public ReferencedEntry(TableEntryType actualType, TableEntryType referencedType, int dimension1) {
         this.actualType = actualType;
         this.referencedType = referencedType;
-        this.d1 = d1;
-        this.d2 = -1;
+        this.dimension1 = dimension1;
+        this.dimension2 = -1;
     }
 
     public TableEntryType getActualType() {

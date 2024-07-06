@@ -13,9 +13,9 @@ public class Compiler {
         lexer.tokenize();
         Parser parser = new Parser(lexer.getTokens());
         ASTNode root = parser.parse();
-        parser.printAST(root, output);
+        ASTNode.printAST(root, output);
         Visitor visitor = new Visitor(root, true);
-        visitor.visitCompUnit();
+        visitor.visitCompUnit(root);
         visitor.print(output2);
     }
 }

@@ -1,9 +1,5 @@
 import EntryType.*;
-import Lexer.*;
-import Parser.ASTNode;
-import Parser.ErrorNode;
-import Parser.ErrorType;
-import Parser.GrammarSymbol;
+import Parser.*;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -12,25 +8,28 @@ import java.util.Objects;
 
 public class Visitor {
     private ASTNode root;
-    private SymbolTable curSymbolTable;
-    private final ArrayList<String> errorList;
-    private final ArrayList<Integer> curDimensions;
-    private ConstValue curConstValue;
-    private boolean isMultiArrayInit;
-    private boolean isConstant;
-    private int curInt;
-    private boolean receiveReturn;
-    private boolean createSTableBeforeBlock;
-    private FuncType curFuncType;
-    private int funcEndLineNum;
-    private final boolean debug;
+    private SymbolTable curSymbolTable; // 当前符号表
+    private ArrayList<String> errorList; // 错误列表
+    private ArrayList<Integer> curDimensions; // 当前维度列表(visitConstDef用)
+    private ConstValue curConstValue; // 当前需要赋值的常量值(visitConstInitVal用)
+    private Value curValue; // 当前需要赋值的变量值(visitInitVal用)
+    private boolean isMultiArrayInit; // 多维数组初始化(visitConstInitVal和visitInitVal用)
+    private boolean isConstant; // 当前是否为常量(visitConstExp用)
+    private int curInt; // 当前得到的整数(visitConstExp用)
+    private boolean receiveReturn; // 当前函数是否有返回值(visitBlock & visitFuncDef用)
+    private boolean createSTableBeforeBlock; // 是否在Block前创建符号表(visitBlock & visitFuncDef用)
+    private FuncType curFuncType; // 当前函数的返回值类型(visitFuncDef用)
+    private int funcEndLineNum; // 函数结束的行号(visitFuncDef用)
+    private boolean debug; // 是否开启debug模式
     private TableEntry curTableEntry; // 分析左值的时候用
     private int inFor; // 解析for循环的时候用
+    private ArrayList<TableEntry> funcRParams; // 分析函数实参时用
 
     public Visitor(ASTNode root, boolean debug) {
+        this.root = root;
         this.curSymbolTable = new SymbolTable(null, true);
         this.errorList = new ArrayList<>();
-        this.root = root;
+
         this.curDimensions = new ArrayList<>();
         this.isConstant = false;
         this.isMultiArrayInit = false;
@@ -41,14 +40,15 @@ public class Visitor {
         this.debug = debug;
         this.inFor = 0;
         this.curTableEntry = null;
+        this.funcRParams = new ArrayList<>();
     }
 
     // CompUnit -> {Decl} {FuncDef} MainFuncDef
-    public void visitCompUnit() {
+    public void visitCompUnit(ASTNode node) {
         if (debug) {
             System.out.println("Visitor Enter CompUnit");
         }
-        for (ASTNode child : root.getChildren()) {
+        for (ASTNode child : node.getChildren()) {
             if (child.getGrammarSymbol() == GrammarSymbol.Decl) {
                 visitDecl(child);
             } else if (child.getGrammarSymbol() == GrammarSymbol.FuncDef) {
@@ -61,6 +61,7 @@ public class Visitor {
 
     // Decl -> ConstDecl | VarDecl
     public void visitDecl(ASTNode node) {
+        // Actually the size of children is 1
         for (ASTNode child : node.getChildren()) {
             if (child.getGrammarSymbol() == GrammarSymbol.ConstDecl) {
                 visitConstDecl(child);
@@ -90,15 +91,19 @@ public class Visitor {
     public void visitConstDef(ASTNode node) {
         // Ident
         ASTNode ident = node.getChild(0);
-        if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
+        if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
             errorList.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
         } else {
             int i = 1;
             int length = node.getChildren().size();
             curDimensions.clear();
-            while (i < length - 2 && node.getChild(i).getToken().
-                    getType().equals(Token.Type.LBRACK)) {
+            while (i < length - 2 &&
+                    node.getChild(i).getToken().getType().equals(Lexer.Token.Type.LBRACK)) {
+
+                if (debug) {
+                    System.out.println("Visitor Enter ConstDef");
+                }
                 isConstant = true;
                 visitConstExp(node.getChild(i + 1));
                 isConstant = false;
@@ -114,15 +119,15 @@ public class Visitor {
             visitConstInitVal(node.getChild(-1), curDimensions.size());
 
             switch (curConstValue.getType()) {
-                case 0:
+                case "int":
                     TableEntry varEntry = new TableEntry(ident, curConstValue.getVar(), false);
                     curSymbolTable.addEntry(ident.getToken().getValue(), varEntry);
                     break;
-                case 1:
+                case "Array1":
                     TableEntry array1Entry = new TableEntry(ident, curConstValue.getArray1(), false);
                     curSymbolTable.addEntry(ident.getToken().getValue(), array1Entry);
                     break;
-                case 2:
+                case "Array2":
                     TableEntry array2Entry = new TableEntry(ident, curConstValue.getArray2(), false);
                     curSymbolTable.addEntry(ident.getToken().getValue(), array2Entry);
                     break;
@@ -137,13 +142,24 @@ public class Visitor {
     // ConstInitVal -> ConstExp
     //    | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
     public void visitConstInitVal(ASTNode node, int dimension) {
+        if (debug) {
+            System.out.println("Visitor Enter ConstInitVal");
+            System.out.println("dimension is " + dimension);
+            if (node.getGrammarSymbol() != null) {
+                System.out.println("ConstInitVal Node is " + node.getGrammarSymbol());
+            } else {
+                System.out.println("ConstInitVal Node is " + node.getToken().getType());
+            }
+            node.printAllChildren();
+        }
         switch (dimension) {
             case 0: // ConstExp
                 isConstant = true;
                 visitConstExp(node.getChild(0));
                 isConstant = false;
+
                 ConstVar constVar = new ConstVar(curInt);
-                curConstValue = new ConstValue(0, constVar);
+                curConstValue = new ConstValue("int", constVar);
                 break;
             case 1:
                 if (!isMultiArrayInit) {
@@ -156,7 +172,7 @@ public class Visitor {
                         values.add(curInt);
                     }
                     ConstArray1 constArray1 = new ConstArray1(d1, values);
-                    curConstValue = new ConstValue(1, constArray1);
+                    curConstValue = new ConstValue("Array1", constArray1);
                 } else {
                     int d1 = (node.getChildrenSize() - 1) / 2;
                     for (int i = 1; i < d1; i+=2) {
@@ -172,7 +188,7 @@ public class Visitor {
                 isMultiArrayInit = true;
                 int d1 = curDimensions.get(0);
                 int d2 = curDimensions.get(1);
-                curConstValue = new ConstValue(2, new ConstArray2(d1, d2));
+                curConstValue = new ConstValue("Array2", new ConstArray2(d1, d2));
                 for (int i = 1; i < d1; i+=2) {
                     if (debug) {
                         System.out.println("child(i) is " + node.getChild(i));
@@ -214,7 +230,7 @@ public class Visitor {
             int length = node.getChildren().size();
             curDimensions.clear();
             while (i < length - 2 &&
-                    node.getChild(i).getToken().getType().equals(Token.Type.LBRACK)) {
+                    node.getChild(i).getToken().getType().equals(Lexer.Token.Type.LBRACK)) {
 
                 isConstant = true;
                 visitConstExp(node.getChild(i + 1));
@@ -279,11 +295,11 @@ public class Visitor {
             curSymbolTable.addChildTable(funcSymbolTable);
 
             // Discuss the type of function
-            if (funcType.getToken().getType().equals(Token.Type.VOIDTK)) {
+            if (funcType.getToken().getType().equals(Lexer.Token.Type.VOIDTK)) {
                 FunctionVoid functionVoid = new FunctionVoid();
                 funcEntry = new TableEntry(ident, functionVoid);
                 curFuncType = FuncType.VoidFunc;
-            } else if (funcType.getToken().getType().equals(Token.Type.INTTK)) {
+            } else if (funcType.getToken().getType().equals(Lexer.Token.Type.INTTK)) {
                 FunctionInt functionInt = new FunctionInt();
                 funcEntry = new TableEntry(ident, functionInt);
                 curFuncType = FuncType.IntFunc;
@@ -514,7 +530,7 @@ public class Visitor {
             if (last instanceof ErrorNode errorNode) {
                 errorList.add(errorNode.toString());
             }
-        } else if (first.getToken().getType().equals(Token.Type.IFTK)) {
+        } else if (first.getToken().getType().equals(Lexer.Token.Type.IFTK)) {
             if (debug) {
                 System.out.println("Visitor From Stmt Enter If Branch");
             }
@@ -529,7 +545,7 @@ public class Visitor {
             if (node.getChildrenSize() > 5) {
                 visitStmt(node.getChild(6), inFuncBlock);
             }
-        } else if (first.getToken().getType().equals(Token.Type.FORTK)) {
+        } else if (first.getToken().getType().equals(Lexer.Token.Type.FORTK)) {
             if (debug) {
                 System.out.println("Visitor From Stmt Enter For Branch");
             }
@@ -550,8 +566,8 @@ public class Visitor {
                 }
             }
             inFor--;
-        } else if (first.getToken().getType().equals(Token.Type.BREAKTK) ||
-        first.getToken().getType().equals(Token.Type.CONTINUETK)) {
+        } else if (first.getToken().getType().equals(Lexer.Token.Type.BREAKTK) ||
+                first.getToken().getType().equals(Lexer.Token.Type.CONTINUETK)) {
             if (debug) {
                 System.out.println("Visitor From Stmt Enter BreakContinue Branch");
             }
@@ -564,7 +580,7 @@ public class Visitor {
             if (last instanceof ErrorNode errorNode) {
                 errorList.add(errorNode.toString());
             }
-        } else if (first.getToken().getType().equals(Token.Type.RETURNTK)) {
+        } else if (first.getToken().getType().equals(Lexer.Token.Type.RETURNTK)) {
             if (debug) {
                 System.out.println("Visitor From Stmt Enter Return Branch");
             }
@@ -584,7 +600,7 @@ public class Visitor {
             if (last instanceof ErrorNode errorNode) {
                 errorList.add(errorNode.toString());
             }
-        } else if (first.getToken().getType().equals(Token.Type.PRINTFTK)) {
+        } else if (first.getToken().getType().equals(Lexer.Token.Type.PRINTFTK)) {
             if (debug) {
                 System.out.println("Visitor From Stmt Enter Printf Branch");
             }
@@ -764,7 +780,7 @@ public class Visitor {
                     // 若原符号表中为a[2][3]，则可以引用a[0]但实际上a[0]的actualType为array1 ??? 不太懂
                     if (length == 4) {
                         if (tableEntry.getTableEntryType() == TableEntryType.Array1 ||
-                        tableEntry.getTableEntryType() == TableEntryType.ConstArray1) {
+                                tableEntry.getTableEntryType() == TableEntryType.ConstArray1) {
                             // 实际传进去的是Var
                             referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Var, curInt);
 
@@ -801,7 +817,7 @@ public class Visitor {
                         } else {
                             curTableEntry = referencedTableEntry;
                         }
-                     }
+                    }
             }
 
 
@@ -853,14 +869,14 @@ public class Visitor {
             visitPrimaryExp(first);
         } else if (Objects.equals(first.getGrammarSymbol(), GrammarSymbol.UnaryOp)) {
             // UnaryOp -> '+' | '−' | '!'
-            int op = first.getChild(0).getToken().getType().equals(Token.Type.PLUS) ? 1 :
-                    first.getChild(0).getToken().getType().equals(Token.Type.MINU) ? -1 : 2;
+            int op = first.getChild(0).getToken().getType().equals(Lexer.Token.Type.PLUS) ? 1 :
+                    first.getChild(0).getToken().getType().equals(Lexer.Token.Type.MINU) ? -1 : 2;
             visitUnaryExp(node.getChild(1));
             if (op == 1 || op == -1) {
                 curInt *= op;
             }
         }
-        else if (Objects.equals(first.getToken().getType(), Token.Type.IDENFR)) {
+        else if (Objects.equals(first.getToken().getType(), Lexer.Token.Type.IDENFR)) {
             if (!curSymbolTable.nameExisted(first.getToken().getValue())) { // Undefined Ident
                 errorList.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
                         .getLine(), null, 0).toString());
@@ -958,24 +974,12 @@ public class Visitor {
             visitMulExp(node.getChild(0));
         } else {
             int leftNum = 0;
-//            for (int i = 0; i < node.getChildrenSize() - 2; i += 2) {
-//                visitAddExp(node.getChild(i));
-//                leftNum = curInt;
-//
-//                if (isConstant) { // 只有在为常量时需要做简化
-//                    if (node.getChild(1 + i).getToken().getType() == Token.Type.PLUS) {
-//                        curInt = leftNum + curInt;
-//                    } else {
-//                        curInt = leftNum - curInt;
-//                    }
-//                }
-//            }
             visitAddExp(node.getChild(0));
             leftNum = curInt;
 
             visitMulExp(node.getChild(2));
             if (isConstant) { // 只有在为常量时需要做简化
-                if (node.getChild(1).getToken().getType() == Token.Type.PLUS) {
+                if (node.getChild(1).getToken().getType() == Lexer.Token.Type.PLUS) {
                     curInt = leftNum + curInt;
                 } else {
                     curInt = leftNum - curInt;
@@ -998,9 +1002,9 @@ public class Visitor {
 
             visitUnaryExp(node.getChild(2));
             if (isConstant) { // 常量的话符号表项就返回null
-                if (node.getChild(1).getToken().getType() == Token.Type.MULT) {
+                if (node.getChild(1).getToken().getType() == Lexer.Token.Type.MULT) {
                     curInt = leftNum * curInt;
-                } else if (node.getChild(1).getToken().getType() == Token.Type.DIV) {
+                } else if (node.getChild(1).getToken().getType() == Lexer.Token.Type.DIV) {
                     curInt = leftNum / curInt;
                 } else {
                     curInt = leftNum % curInt;

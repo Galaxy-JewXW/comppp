@@ -40,22 +40,6 @@ public class Parser {
         return parseCompUnit(0);
     }
 
-    public void printAST(ASTNode root, BufferedWriter output) throws IOException {
-        if (root.isLeaf()) {
-            output.write(root + "\n");
-            return;
-        }
-        for (ASTNode child : root.getChildren()) {
-            printAST(child, output);
-        }
-        if (root.getGrammarSymbol() != GrammarSymbol.BlockItem
-                && root.getGrammarSymbol() != GrammarSymbol.BType
-                && root.getGrammarSymbol() != GrammarSymbol.Decl) {
-            output.write(root + "\n");
-        }
-        output.flush();
-    }
-
     // 编译单元 CompUnit -> {Decl} {FuncDef} MainFuncDef
     public ASTNode parseCompUnit(int depth) {
         ASTNode root = new ASTNode(GrammarSymbol.CompUnit, null, depth);
