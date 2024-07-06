@@ -8,47 +8,35 @@ import java.util.Objects;
 
 public class Visitor {
     private ASTNode root;
-    private SymbolTable curSymbolTable; // 当前符号表
-    private ArrayList<String> errorList; // 错误列表
-    private ArrayList<Integer> curDimensions; // 当前维度列表(visitConstDef用)
+    private SymbolTable curSymbolTable= new SymbolTable(null, true);; // 当前符号表
+    private ArrayList<String> errorList = new ArrayList<>(); // 错误列表
+    private ArrayList<Integer> curDimensions = new ArrayList<>(); // 当前维度列表(visitConstDef用)
     private ConstValue curConstValue; // 当前需要赋值的常量值(visitConstInitVal用)
-    private Value curValue; // 当前需要赋值的变量值(visitInitVal用)
-    private boolean isMultiArrayInit; // 多维数组初始化(visitConstInitVal和visitInitVal用)
-    private boolean isConstant; // 当前是否为常量(visitConstExp用)
+    private boolean isMultiArrayInit = false; // 多维数组初始化(visitConstInitVal和visitInitVal用)
+    private boolean isConstant = false; // 当前是否为常量(visitConstExp用)
     private int curInt; // 当前得到的整数(visitConstExp用)
-    private boolean receiveReturn; // 当前函数是否有返回值(visitBlock & visitFuncDef用)
-    private boolean createSTableBeforeBlock; // 是否在Block前创建符号表(visitBlock & visitFuncDef用)
+    private boolean receiveReturn = false; // 当前函数是否有返回值(visitBlock & visitFuncDef用)
+    private boolean createSTableBeforeBlock = false; // 是否在Block前创建符号表(visitBlock & visitFuncDef用)
     private FuncType curFuncType; // 当前函数的返回值类型(visitFuncDef用)
     private int funcEndLineNum; // 函数结束的行号(visitFuncDef用)
     private boolean debug; // 是否开启debug模式
-    private TableEntry curTableEntry; // 分析左值的时候用
-    private int inFor; // 解析for循环的时候用
-    private ArrayList<TableEntry> funcRParams; // 分析函数实参时用
+    private TableEntry curTableEntry = null; // 分析左值的时候用
+    private int inFor = 0; // 解析for循环的时候用
+    private ArrayList<TableEntry> funcRParams = new ArrayList<>(); // 分析函数实参时用
 
     public Visitor(ASTNode root, boolean debug) {
         this.root = root;
-        this.curSymbolTable = new SymbolTable(null, true);
-        this.errorList = new ArrayList<>();
-
-        this.curDimensions = new ArrayList<>();
-        this.isConstant = false;
-        this.isMultiArrayInit = false;
-        this.receiveReturn = false;
-        this.createSTableBeforeBlock = false;
         this.curFuncType = FuncType.NotFunc;
         this.funcEndLineNum = 0;
         this.debug = debug;
-        this.inFor = 0;
-        this.curTableEntry = null;
-        this.funcRParams = new ArrayList<>();
     }
 
     // CompUnit -> {Decl} {FuncDef} MainFuncDef
-    public void visitCompUnit(ASTNode node) {
+    public void visitCompUnit() {
         if (debug) {
             System.out.println("Visitor Enter CompUnit");
         }
-        for (ASTNode child : node.getChildren()) {
+        for (ASTNode child : root.getChildren()) {
             if (child.getGrammarSymbol() == GrammarSymbol.Decl) {
                 visitDecl(child);
             } else if (child.getGrammarSymbol() == GrammarSymbol.FuncDef) {
@@ -164,8 +152,9 @@ public class Visitor {
             case 1:
                 if (!isMultiArrayInit) {
                     int d1 = curDimensions.get(0);
+                    int p = 0;
                     ArrayList<Integer> values = new ArrayList<>();
-                    for (int i = 1; i < d1; i+=2) {
+                    for (int i = 1; p < d1; i += 2, p++) {
                         isConstant = true;
                         visitConstExp(node.getChild(i).getChild(0));
                         isConstant = false;
@@ -174,7 +163,7 @@ public class Visitor {
                     ConstArray1 constArray1 = new ConstArray1(d1, values);
                     curConstValue = new ConstValue("Array1", constArray1);
                 } else {
-                    int d1 = (node.getChildrenSize() - 1) / 2;
+                    int d1 = (node.getChildrenSize() + 1) / 2;
                     for (int i = 1; i < d1; i+=2) {
                         isConstant = true;
                         visitConstExp(node.getChild(i).getChild(0));
@@ -183,13 +172,13 @@ public class Visitor {
                     }
                 }
                 break;
-
             case 2:
                 isMultiArrayInit = true;
                 int d1 = curDimensions.get(0);
                 int d2 = curDimensions.get(1);
+                int p = 0;
                 curConstValue = new ConstValue("Array2", new ConstArray2(d1, d2));
-                for (int i = 1; i < d1; i+=2) {
+                for (int i = 1; p < d1; i += 2, p++) {
                     if (debug) {
                         System.out.println("child(i) is " + node.getChild(i));
                     }
