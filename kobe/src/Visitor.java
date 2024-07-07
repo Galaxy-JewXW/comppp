@@ -96,7 +96,7 @@ public class Visitor {
         curDimensions.clear();
 
         for (int i = 1; i < length - 2 && node.getChild(i).getToken().
-                getType() == Token.Type.LBRACK; i += 3) {
+                getType() == Token.TokenType.LBRACK; i += 3) {
             parsingConstant = true;
             visitConstExp(node.getChild(i + 1));
             parsingConstant = false;
@@ -195,7 +195,7 @@ public class Visitor {
         int l = node.getChildrenSize();
         curDimensions.clear();
         for (int i = 1; i < l - 2 && node.getChild(i).getToken()
-                .getType() == Token.Type.LBRACK; i += 3) {
+                .getType() == Token.TokenType.LBRACK; i += 3) {
             parsingConstant = true;
             visitConstExp(node.getChild(i + 1));
             parsingConstant = false;
@@ -255,11 +255,11 @@ public class Visitor {
         SymbolTable funcSymbolTable = new SymbolTable(curSymbolTable, false);
         curSymbolTable.addChildTable(funcSymbolTable);
 
-        if (funcType.getToken().getType() == Token.Type.VOIDTK) {
+        if (funcType.getToken().getType() == Token.TokenType.VOIDTK) {
             FunctionVoid functionVoid = new FunctionVoid();
             funcEntry = new TableEntry(ident, functionVoid);
             curFuncType = FuncType.VOID;
-        } else if (funcType.getToken().getType() == Token.Type.INTTK) {
+        } else if (funcType.getToken().getType() == Token.TokenType.INTTK) {
             FunctionInt functionInt = new FunctionInt();
             funcEntry = new TableEntry(ident, functionInt);
             curFuncType = FuncType.INT;
@@ -414,7 +414,7 @@ public class Visitor {
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else if (first.getToken().getType() == Token.Type.IFTK) {
+        } else if (first.getToken().getType() == Token.TokenType.IFTK) {
             // Stmt -> 'if' '(' Cond ')' Stmt ['else' Stmt]
             visitCond(node.getChild(2));
             if (node.getChild(3) instanceof ErrorNode errorNode) {
@@ -424,7 +424,7 @@ public class Visitor {
             if (node.getChildrenSize() > 5) {
                 visitStmt(node.getChild(6), inFunc);
             }
-        } else if (first.getToken().getType() == Token.Type.FORTK) {
+        } else if (first.getToken().getType() == Token.TokenType.FORTK) {
             forLevel++;
             for (int i = 2; i < node.getChildrenSize(); i++) {
                 if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.ForStmt)) {
@@ -438,8 +438,8 @@ public class Visitor {
                 }
             }
             forLevel--;
-        } else if (first.getToken().getType() == Token.Type.BREAKTK ||
-                first.getToken().getType() == Token.Type.CONTINUETK) {
+        } else if (first.getToken().getType() == Token.TokenType.BREAKTK ||
+                first.getToken().getType() == Token.TokenType.CONTINUETK) {
             if (forLevel == 0) {
                 errors.add(new ErrorNode(ErrorType.BreakContinueNotInLoop,
                         first.getToken().getLine(), null, 0)
@@ -448,7 +448,7 @@ public class Visitor {
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else if (first.getToken().getType()== Token.Type.RETURNTK) {
+        } else if (first.getToken().getType()== Token.TokenType.RETURNTK) {
             haveReturnValue = inFunc;
             if (curFuncType == FuncType.VOID &&
                     node.getChild(1).getGrammarSymbol() == GrammarSymbol.Exp) {
@@ -463,7 +463,7 @@ public class Visitor {
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else if (first.getToken().getType().equals(Token.Type.PRINTFTK)) {
+        } else if (first.getToken().getType().equals(Token.TokenType.PRINTFTK)) {
             // 'printf' '(' FormatString { , Exp } ')' ';'
             ASTNode formatString = node.getChild(2);
             int count = checkFormatString(formatString);
@@ -636,13 +636,13 @@ public class Visitor {
         if (first.getGrammarSymbol() == GrammarSymbol.PrimaryExp) {
             visitPrimaryExp(first);
         } else if (first.getGrammarSymbol() == GrammarSymbol.UnaryOp) {
-            int op = (first.getChild(0).getToken().getType() == Token.Type.PLUS) ? 1 :
-                    (first.getChild(0).getToken().getType() == Token.Type.MINU) ? -1 : 0;
+            int op = (first.getChild(0).getToken().getType() == Token.TokenType.PLUS) ? 1 :
+                    (first.getChild(0).getToken().getType() == Token.TokenType.MINU) ? -1 : 0;
             visitUnaryExp(node.getChild(1));
             if (op == 1 || op == -1) {
                 curInt *= op;
             }
-        } else if (first.getToken().getType() == Token.Type.IDENFR) {
+        } else if (first.getToken().getType() == Token.TokenType.IDENFR) {
             if (!curSymbolTable.haveName(first.getToken().getValue())) {
                 errors.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
                         .getLine(), null, 0).toString());
@@ -710,9 +710,9 @@ public class Visitor {
             int leftNum = curInt;
             visitUnaryExp(node.getChild(2));
             if (parsingConstant) {
-                if (node.getChild(1).getToken().getType() == Token.Type.MULT) {
+                if (node.getChild(1).getToken().getType() == Token.TokenType.MULT) {
                     curInt = leftNum * curInt;
-                } else if (node.getChild(1).getToken().getType() == Token.Type.DIV) {
+                } else if (node.getChild(1).getToken().getType() == Token.TokenType.DIV) {
                     curInt = leftNum / curInt;
                 } else {
                     curInt = leftNum % curInt;
@@ -731,7 +731,7 @@ public class Visitor {
             int leftNum = curInt;
             visitMulExp(node.getChild(2));
             if (parsingConstant) {
-                if (node.getChild(1).getToken().getType() == Token.Type.PLUS) {
+                if (node.getChild(1).getToken().getType() == Token.TokenType.PLUS) {
                     curInt = leftNum + curInt;
                 } else {
                     curInt = leftNum - curInt;

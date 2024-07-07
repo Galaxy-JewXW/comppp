@@ -1,7 +1,7 @@
 package Lexer;
 
 public class Token {
-    public enum Type {
+    public enum TokenType {
         /* 保留字 */
         MAINTK, // main
         CONSTTK, // const
@@ -49,20 +49,20 @@ public class Token {
         EMPTY_LINE // 空行
     }
 
-    private Type type;
+    private final Token.TokenType tokenType;
     private String val;
     private int line;
     private int index;
 
-    public Token(Type type, String val, int line, int index) {
-        this.type = type;
+    public Token(Token.TokenType tokenType, String val, int line, int index) {
+        this.tokenType = tokenType;
         this.val = val;
         this.line = line;
         this.index = index;
     }
 
-    public Type getType() {
-        return type;
+    public Token.TokenType getType() {
+        return tokenType;
     }
 
     public String getValue() {
@@ -79,6 +79,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return type.name() + " " + val;
+        return tokenType.name() + " " + val;
     }
 }

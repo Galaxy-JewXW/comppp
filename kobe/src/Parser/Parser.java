@@ -2,8 +2,6 @@ package Parser;
 
 import Lexer.Token;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -22,7 +20,7 @@ public class Parser {
         return tokens.get(pos);
     }
     
-    public Lexer.Token.Type curTokenType() {
+    public Token.TokenType curTokenType() {
         return curToken().getType();
     }
 
@@ -45,12 +43,12 @@ public class Parser {
         ASTNode root = new ASTNode(GrammarSymbol.CompUnit, null, depth);
         ASTNode child;
         // {Decl}
-        while (tokens.get(pos + 2).getType() != Token.Type.LPARENT) {
+        while (tokens.get(pos + 2).getType() != Token.TokenType.LPARENT) {
             child = parseDecl(depth + 1);
             connect(root, child);
         }
         // {FuncDef}
-        while (tokens.get(pos + 1).getType() != Token.Type.MAINTK) {
+        while (tokens.get(pos + 1).getType() != Token.TokenType.MAINTK) {
             child = parseFuncDef(depth + 1);
             connect(root, child);
         }
@@ -64,7 +62,7 @@ public class Parser {
     public ASTNode parseDecl(int depth) {
         ASTNode decl = new ASTNode(GrammarSymbol.Decl, null, depth);
         ASTNode child;
-        if (curTokenType() == Token.Type.CONSTTK) {
+        if (curTokenType() == Token.TokenType.CONSTTK) {
             child = parseConstDecl(depth + 1);
         } else {
             child = parseVarDecl(depth + 1);
@@ -91,7 +89,7 @@ public class Parser {
         connect(constDecl, child);
 
         // {',' ConstDef}
-        while (curTokenType() == Token.Type.COMMA) {
+        while (curTokenType() == Token.TokenType.COMMA) {
             addCurToken(constDecl, depth);
             child = parseConstDef(depth + 1);
             connect(constDecl, child);
@@ -125,13 +123,13 @@ public class Parser {
         addCurToken(constDef, depth);
 
         // { '[' ConstExp ']' }
-        while (curTokenType() == Token.Type.LBRACK) {
+        while (curTokenType() == Token.TokenType.LBRACK) {
             addCurToken(constDef, depth);
 
             child = parseConstExp(depth + 1);
             connect(constDef, child);
 
-            if (!Objects.equals(curTokenType(), Token.Type.RBRACK)) {
+            if (!Objects.equals(curTokenType(), Token.TokenType.RBRACK)) {
                 constDef.addChild(new ErrorNode(ErrorType.RBRACKMissing,
                         tokens.get(pos - 1).getLine(),
                         constDef, depth + 1));
@@ -154,19 +152,19 @@ public class Parser {
     public ASTNode parseConstInitVal(int depth) {
         ASTNode constInitVal = new ASTNode(GrammarSymbol.ConstInitVal, null, depth);
         ASTNode child;
-        if (curTokenType() != Token.Type.LBRACE) {
+        if (curTokenType() != Token.TokenType.LBRACE) {
             // ConstExp
             child = parseConstExp(depth + 1);
             connect(constInitVal, child);
         } else {
             // '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
             addCurToken(constInitVal, depth);
-            if (curTokenType() != Token.Type.RBRACE) {
+            if (curTokenType() != Token.TokenType.RBRACE) {
                 // ConstInitVal { ',' ConstInitVal }
                 child = parseConstInitVal(depth + 1);
                 connect(constInitVal, child);
 
-                while (curTokenType() == Token.Type.COMMA) {
+                while (curTokenType() == Token.TokenType.COMMA) {
                     addCurToken(constInitVal, depth);
                     child = parseConstInitVal(depth + 1);
                     connect(constInitVal, child);
@@ -191,7 +189,7 @@ public class Parser {
         connect(varDecl, child);
 
         // { ',' VarDef }
-        while (curTokenType() == Token.Type.COMMA) {
+        while (curTokenType() == Token.TokenType.COMMA) {
             addCurToken(varDecl, depth);
 
             // VarDef
@@ -200,7 +198,7 @@ public class Parser {
         }
 
         // ';'
-        if (curTokenType() != Token.Type.SEMICN) {
+        if (curTokenType() != Token.TokenType.SEMICN) {
             varDecl.addChild(new ErrorNode(ErrorType.SEMICNMissing, tokens.get(pos - 1).getLine(),
                     varDecl, depth + 1));
         } else {
@@ -221,21 +219,21 @@ public class Parser {
         addCurToken(varDef, depth);
 
         // { '[' ConstExp ']' }
-        while (curTokenType() == Token.Type.LBRACK) {
+        while (curTokenType() == Token.TokenType.LBRACK) {
             addCurToken(varDef, depth);
 
             // ConstExp
             child = parseConstExp(depth + 1);
             connect(varDef, child);
 
-            if (!Objects.equals(curTokenType(), Token.Type.RBRACK)) {
+            if (!Objects.equals(curTokenType(), Token.TokenType.RBRACK)) {
                 varDef.addChild(new ErrorNode(ErrorType.RBRACKMissing, tokens.get(pos - 1).getLine(),
                         varDef, depth + 1));
             } else {
                 addCurToken(varDef, depth);
             }
         }
-        if (curTokenType() == Token.Type.ASSIGN) {
+        if (curTokenType() == Token.TokenType.ASSIGN) {
             addCurToken(varDef, depth);
             // InitVal
             child = parseInitVal(depth + 1);
@@ -248,17 +246,17 @@ public class Parser {
     public ASTNode parseInitVal(int depth) {
         ASTNode initVal = new ASTNode(GrammarSymbol.InitVal, null, depth);
         ASTNode child;
-        if (curTokenType() != Token.Type.LBRACE) {
+        if (curTokenType() != Token.TokenType.LBRACE) {
             child = parseExp(depth + 1);
             connect(initVal, child);
         } else {
             // '{'
             addCurToken(initVal, depth);
-            if (curTokenType() != Token.Type.RBRACE) {
+            if (curTokenType() != Token.TokenType.RBRACE) {
                 child = parseInitVal(depth + 1);
                 connect(initVal, child);
 
-                while (curTokenType() == Token.Type.COMMA) {
+                while (curTokenType() == Token.TokenType.COMMA) {
                     // { ',' InitVal }
                     addCurToken(initVal, depth);
                     child = parseInitVal(depth + 1);
@@ -288,14 +286,14 @@ public class Parser {
         addCurToken(funcDef, depth);
 
         // [FuncFParams]
-        if (curTokenType() != Token.Type.RPARENT &&
-                curTokenType() != Token.Type.LBRACE) {
+        if (curTokenType() != Token.TokenType.RPARENT &&
+                curTokenType() != Token.TokenType.LBRACE) {
             child = parseFuncFParams(depth + 1);
             connect(funcDef, child);
         }
 
         // ')'
-        if (curTokenType() != Token.Type.RPARENT) {
+        if (curTokenType() != Token.TokenType.RPARENT) {
             funcDef.addChild(new ErrorNode(ErrorType.RPARENTMissing, tokens.get(pos - 1).getLine(),
                     funcDef, depth + 1));
         } else {
@@ -326,7 +324,7 @@ public class Parser {
         addCurToken(mainFuncDef, depth);
 
         // ')'
-        if (!Objects.equals(curTokenType(), Token.Type.RPARENT)) {
+        if (!Objects.equals(curTokenType(), Token.TokenType.RPARENT)) {
             mainFuncDef.addChild(new ErrorNode(ErrorType.RPARENTMissing,
                     tokens.get(pos - 1).getLine(),
                     mainFuncDef, depth + 1));
@@ -344,9 +342,9 @@ public class Parser {
     // 函数类型 FuncType -> 'void' | 'int'
     public ASTNode parseFuncType(int depth) {
         ASTNode funcType = new ASTNode(GrammarSymbol.FuncType, null, depth);
-        if (curTokenType() == Token.Type.VOIDTK) {
+        if (curTokenType() == Token.TokenType.VOIDTK) {
             addCurToken(funcType, depth);
-        } else if (curTokenType() == Token.Type.INTTK) {
+        } else if (curTokenType() == Token.TokenType.INTTK) {
             addCurToken(funcType, depth);
         }
 
@@ -363,7 +361,7 @@ public class Parser {
         connect(funcFParams, child);
 
         // { ',' FuncFParam }
-        while (curTokenType() == Token.Type.COMMA) {
+        while (curTokenType() == Token.TokenType.COMMA) {
             addCurToken(funcFParams, depth);
             child = parseFuncFParam(depth + 1);
             connect(funcFParams, child);
@@ -387,23 +385,23 @@ public class Parser {
         addCurToken(funcFParam, depth);
 
         // ['[' ']' { '[' ConstExp ']' }]
-        if (pos < length && curTokenType() == Token.Type.LBRACK) {
+        if (pos < length && curTokenType() == Token.TokenType.LBRACK) {
             addCurToken(funcFParam, depth);
 
-            if (curTokenType() != Token.Type.RBRACK) {
+            if (curTokenType() != Token.TokenType.RBRACK) {
                 funcFParam.addChild(new ErrorNode(ErrorType.RBRACKMissing,
                         tokens.get(pos - 1).getLine(), funcFParam, depth + 1));
             } else {
                 addCurToken(funcFParam, depth);
             }
 
-            while (curTokenType() == Token.Type.LBRACK) {
+            while (curTokenType() == Token.TokenType.LBRACK) {
                 addCurToken(funcFParam, depth);
 
                 child = parseConstExp(depth + 1);
                 connect(funcFParam, child);
 
-                if (curTokenType() != Token.Type.RBRACK) {
+                if (curTokenType() != Token.TokenType.RBRACK) {
                     funcFParam.addChild(new ErrorNode(ErrorType.RBRACKMissing,
                             tokens.get(pos - 1).getLine(), funcFParam, depth + 1));
                 } else {
@@ -424,7 +422,7 @@ public class Parser {
         addCurToken(block, depth);
 
         // { BlockItem }
-        while (curTokenType() != Token.Type.RBRACE) {
+        while (curTokenType() != Token.TokenType.RBRACE) {
             child = parseBlockItem(depth + 1);
             connect(block, child);
         }
@@ -438,8 +436,8 @@ public class Parser {
     public ASTNode parseBlockItem(int depth) {
         ASTNode blockItem = new ASTNode(GrammarSymbol.BlockItem, null, depth);
         ASTNode child;
-        if (curTokenType() == Token.Type.CONSTTK
-                || curTokenType() == Token.Type.INTTK) {
+        if (curTokenType() == Token.TokenType.CONSTTK
+                || curTokenType() == Token.TokenType.INTTK) {
             child = parseDecl(depth + 1);
             connect(blockItem, child);
         } else {
@@ -465,25 +463,25 @@ public class Parser {
         // LVal '=' Exp ';' | LVal '=' 'getint' '('')' ';'
         // i -> SEMICNMissing
         // j -> RPARENTMissing
-        if (ifStmtHaveEqual() && curTokenType() == Token.Type.IDENFR) {
+        if (ifStmtHaveEqual() && curTokenType() == Token.TokenType.IDENFR) {
             child = parseLVal(depth + 1);
             connect(stmt, child);
-            if (curTokenType() == Token.Type.ASSIGN) {
+            if (curTokenType() == Token.TokenType.ASSIGN) {
                 addCurToken(stmt, depth);
-                if (curTokenType() == Token.Type.GETINTTK) {
+                if (curTokenType() == Token.TokenType.GETINTTK) {
                     // 'getint'
                     addCurToken(stmt, depth);
                     // '('
                     addCurToken(stmt, depth);
                     // ')'
-                    if (curTokenType() != Token.Type.RPARENT) {
+                    if (curTokenType() != Token.TokenType.RPARENT) {
                         stmt.addChild(new ErrorNode(ErrorType.RPARENTMissing,
                                 tokens.get(pos - 1).getLine(), stmt, depth + 1));
                     } else {
                         addCurToken(stmt, depth);
                     }
                     // ';'
-                    if (curTokenType() != Token.Type.SEMICN) {
+                    if (curTokenType() != Token.TokenType.SEMICN) {
                         stmt.addChild(new ErrorNode(ErrorType.SEMICNMissing,
                                 tokens.get(pos - 1).getLine(), stmt, depth + 1));
                     } else {
@@ -492,7 +490,7 @@ public class Parser {
                 } else {
                     child = parseExp(depth + 1);
                     connect(stmt, child);
-                    if (curTokenType() != Token.Type.SEMICN) {
+                    if (curTokenType() != Token.TokenType.SEMICN) {
                         stmt.addChild(new ErrorNode(ErrorType.SEMICNMissing,
                                 tokens.get(pos - 1).getLine(), stmt, depth + 1));
                     } else {
@@ -500,7 +498,7 @@ public class Parser {
                     }
                 }
             }
-        } else if (curTokenType() == Token.Type.IFTK) {
+        } else if (curTokenType() == Token.TokenType.IFTK) {
             // 'if' '(' Cond ')' Stmt [ 'else' Stmt ]
             // j -> RPARENTMissing
 
@@ -512,7 +510,7 @@ public class Parser {
             child = parseCond(depth + 1);
             connect(stmt, child);
             // ')'
-            if (curTokenType() != Token.Type.RPARENT) {
+            if (curTokenType() != Token.TokenType.RPARENT) {
                 stmt.addChild(new ErrorNode(ErrorType.RPARENTMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
             } else {
@@ -521,23 +519,23 @@ public class Parser {
             // Stmt
             child = parseStmt(depth + 1);
             connect(stmt, child);
-            if (curTokenType() == Token.Type.ELSETK) {
+            if (curTokenType() == Token.TokenType.ELSETK) {
                 // 'else'
                 addCurToken(stmt, depth);
                 child = parseStmt(depth + 1);
                 connect(stmt, child);
             }
-        } else if (curTokenType() == Token.Type.FORTK) {
+        } else if (curTokenType() == Token.TokenType.FORTK) {
             // 'for' '(' [ForStmt] ';' [Cond] ';' [forStmt] ')' Stmt
             addCurToken(stmt, depth);
             // '('
             addCurToken(stmt, depth);
             // [ForStmt] ';'
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 child = parseForStmt(depth + 1);
                 connect(stmt, child);
             }
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 stmt.addChild(new ErrorNode(ErrorType.SEMICNMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
 
@@ -546,23 +544,23 @@ public class Parser {
             }
 
             // [Cond] ';'
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 child = parseCond(depth + 1);
                 connect(stmt, child);
             }
 
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 stmt.addChild(new ErrorNode(ErrorType.SEMICNMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
             } else {
                 addCurToken(stmt, depth);
             }
             // ')'
-            if (curTokenType() != Token.Type.RPARENT) {
+            if (curTokenType() != Token.TokenType.RPARENT) {
                 child = parseForStmt(depth + 1);
                 connect(stmt, child);
             }
-            if (curTokenType() != Token.Type.RPARENT) {
+            if (curTokenType() != Token.TokenType.RPARENT) {
                 stmt.addChild(new ErrorNode(ErrorType.RPARENTMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
             }
@@ -572,39 +570,39 @@ public class Parser {
 
             child = parseStmt(depth + 1);
             connect(stmt, child);
-        } else if (curTokenType() == Token.Type.BREAKTK
-                || curTokenType() == Token.Type.CONTINUETK) {
+        } else if (curTokenType() == Token.TokenType.BREAKTK
+                || curTokenType() == Token.TokenType.CONTINUETK) {
             // 'break' ';' | 'continue' ';'
             addCurToken(stmt, depth);
             // ';'
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 // i -> ErrorType.SEMICNMissing
                 stmt.addChild(new ErrorNode(ErrorType.SEMICNMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
             } else {
                 addCurToken(stmt, depth);
             }
-        } else if (curTokenType() == Token.Type.RETURNTK) {
+        } else if (curTokenType() == Token.TokenType.RETURNTK) {
             // 'return' [Exp] ';'
             addCurToken(stmt, depth);
-            if (curTokenType() != Token.Type.SEMICN &&
-                    (curTokenType() == Token.Type.LPARENT ||
-                            curTokenType() == Token.Type.IDENFR ||
-                            curTokenType() == Token.Type.INTCON ||
-                            curTokenType() == Token.Type.PLUS ||
-                            curTokenType() == Token.Type.MINU ||
-                            curTokenType() == Token.Type.NOT)) {
+            if (curTokenType() != Token.TokenType.SEMICN &&
+                    (curTokenType() == Token.TokenType.LPARENT ||
+                            curTokenType() == Token.TokenType.IDENFR ||
+                            curTokenType() == Token.TokenType.INTCON ||
+                            curTokenType() == Token.TokenType.PLUS ||
+                            curTokenType() == Token.TokenType.MINU ||
+                            curTokenType() == Token.TokenType.NOT)) {
                 child = parseExp(depth + 1);
                 connect(stmt, child);
             }
             // i -> SEMICNMissing
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 stmt.addChild(new ErrorNode(ErrorType.SEMICNMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
             } else {
                 addCurToken(stmt, depth);
             }
-        } else if (curTokenType() == Token.Type.PRINTFTK) {
+        } else if (curTokenType() == Token.TokenType.PRINTFTK) {
             // 'printf' '(' FormatString {',' Exp} ')' ';'
             addCurToken(stmt, depth);
             // '('
@@ -612,13 +610,13 @@ public class Parser {
             // FormatString
             addCurToken(stmt, depth);
             // {',' Exp}
-            while (curTokenType() == Token.Type.COMMA) {
+            while (curTokenType() == Token.TokenType.COMMA) {
                 addCurToken(stmt, depth);
                 child = parseExp(depth + 1);
                 connect(stmt, child);
             }
 
-            if (curTokenType() != Token.Type.RPARENT) {
+            if (curTokenType() != Token.TokenType.RPARENT) {
                 // j -> RPARENTMissing
                 stmt.addChild(new ErrorNode(ErrorType.RPARENTMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
@@ -626,25 +624,25 @@ public class Parser {
                 addCurToken(stmt, depth);
             }
 
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 // i -> SEMICNMissing
                 stmt.addChild(new ErrorNode(ErrorType.SEMICNMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
             } else {
                 addCurToken(stmt, depth);
             }
-        } else if (curTokenType() == Token.Type.LBRACE) {
+        } else if (curTokenType() == Token.TokenType.LBRACE) {
             // Block
             child = parseBlock(depth + 1);
             connect(stmt, child);
         } else {
             // [Exp] ';'
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 child = parseExp(depth + 1);
                 connect(stmt, child);
             }
             // i -> SEMICNMissing
-            if (curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.SEMICN) {
                 stmt.addChild(new ErrorNode(ErrorType.SEMICNMissing,
                         tokens.get(pos - 1).getLine(), stmt, depth + 1));
             } else {
@@ -662,7 +660,7 @@ public class Parser {
         child = parseLVal(depth + 1);
         connect(forStmt, child);
         // '='
-        if (!Objects.equals(curTokenType(), Token.Type.ASSIGN)) {
+        if (!Objects.equals(curTokenType(), Token.TokenType.ASSIGN)) {
             throw new IllegalArgumentException();
         }
         addCurToken(forStmt, depth);
@@ -703,18 +701,18 @@ public class Parser {
         ASTNode lVal = new ASTNode(GrammarSymbol.LVal, null, depth);
         ASTNode child;
         // Ident
-        if (curTokenType() != Token.Type.IDENFR) {
+        if (curTokenType() != Token.TokenType.IDENFR) {
             throw new IllegalArgumentException();
         }
         addCurToken(lVal, depth);
 
-        while (curTokenType() == Token.Type.LBRACK) {
+        while (curTokenType() == Token.TokenType.LBRACK) {
             addCurToken(lVal, depth);
 
             child = parseExp(depth + 1);
             connect(lVal, child);
 
-            if (curTokenType() != Token.Type.RBRACK) {
+            if (curTokenType() != Token.TokenType.RBRACK) {
                 lVal.addChild(new ErrorNode(ErrorType.RBRACKMissing,
                         tokens.get(pos - 1).getLine(), lVal, depth + 1));
             } else {
@@ -729,11 +727,11 @@ public class Parser {
     public ASTNode  parsePrimaryExp(int depth) {
         ASTNode primaryExp = new ASTNode(GrammarSymbol.PrimaryExp, null, depth);
         ASTNode child;
-        if (curTokenType() != Token.Type.LPARENT) {
-            if (curTokenType() == Token.Type.IDENFR) {
+        if (curTokenType() != Token.TokenType.LPARENT) {
+            if (curTokenType() == Token.TokenType.IDENFR) {
                 child = parseLVal(depth + 1);
                 connect(primaryExp, child);
-            } else if (curTokenType() == Token.Type.INTCON) {
+            } else if (curTokenType() == Token.TokenType.INTCON) {
                 child = parseNumber(depth + 1);
                 connect(primaryExp, child);
             } else {
@@ -744,7 +742,7 @@ public class Parser {
             addCurToken(primaryExp, depth);
             child = parseExp(depth + 1);
             connect(primaryExp, child);
-            if (curTokenType() != Token.Type.RPARENT) {
+            if (curTokenType() != Token.TokenType.RPARENT) {
                 primaryExp.addChild(new ErrorNode(ErrorType.RPARENTMissing,
                         tokens.get(pos - 1).getLine(), primaryExp, depth + 1));
             }
@@ -756,7 +754,7 @@ public class Parser {
     // 数值 Number -> IntConst
     public ASTNode parseNumber(int depth) {
         ASTNode number = new ASTNode(GrammarSymbol.Number, null, depth);
-        if (curTokenType() != Token.Type.INTCON) {
+        if (curTokenType() != Token.TokenType.INTCON) {
             throw new IllegalArgumentException("");
         }
         addCurToken(number, depth);
@@ -770,30 +768,30 @@ public class Parser {
         ASTNode unaryExp = new ASTNode(GrammarSymbol.UnaryExp, null, depth);
         ASTNode child;
 
-        if (curTokenType() == Token.Type.IDENFR
-                && tokens.get(pos + 1).getType() == Token.Type.LPARENT) {
+        if (curTokenType() == Token.TokenType.IDENFR
+                && tokens.get(pos + 1).getType() == Token.TokenType.LPARENT) {
             addCurToken(unaryExp, depth);
 
-            if (curTokenType() != Token.Type.LPARENT) {
+            if (curTokenType() != Token.TokenType.LPARENT) {
                 throw new IllegalArgumentException();
             }
             addCurToken(unaryExp, depth);
 
-            if (curTokenType() != Token.Type.RPARENT &&
-                    curTokenType() != Token.Type.SEMICN) {
+            if (curTokenType() != Token.TokenType.RPARENT &&
+                    curTokenType() != Token.TokenType.SEMICN) {
                 child = parseFuncRParams(depth + 1);
                 connect(unaryExp, child);
             }
-            if (curTokenType() != Token.Type.RPARENT) {
+            if (curTokenType() != Token.TokenType.RPARENT) {
                 unaryExp.addChild(new ErrorNode(ErrorType.RPARENTMissing,
                         tokens.get(pos - 1).getLine(), unaryExp, depth + 1));
             }
             else {
                 addCurToken(unaryExp, depth);
             }
-        } else if (curTokenType() == Token.Type.PLUS
-                || curTokenType() == Token.Type.MINU
-                || curTokenType() == Token.Type.NOT) {
+        } else if (curTokenType() == Token.TokenType.PLUS
+                || curTokenType() == Token.TokenType.MINU
+                || curTokenType() == Token.TokenType.NOT) {
             child = parseUnaryOp(depth + 1);
             connect(unaryExp, child);
             child = parseUnaryExp(depth + 1);
@@ -809,9 +807,9 @@ public class Parser {
     // 单目运算符 UnaryOp -> '+' | '-' | '!'
     public ASTNode parseUnaryOp(int depth) {
         ASTNode unaryOp = new ASTNode(GrammarSymbol.UnaryOp, null, depth);
-        if (curTokenType() != Token.Type.PLUS
-                && curTokenType() != Token.Type.MINU
-                && curTokenType() != Token.Type.NOT) {
+        if (curTokenType() != Token.TokenType.PLUS
+                && curTokenType() != Token.TokenType.MINU
+                && curTokenType() != Token.TokenType.NOT) {
             throw new IllegalArgumentException("");
         }
         addCurToken(unaryOp, depth);
@@ -825,7 +823,7 @@ public class Parser {
         child = parseExp(depth + 1);
         child.setParent(funcRParams);
         funcRParams.addChild(child);
-        while (curTokenType() == Token.Type.COMMA) {
+        while (curTokenType() == Token.TokenType.COMMA) {
             addCurToken(funcRParams, depth);
             child = parseExp(depth + 1);
             connect(funcRParams, child);
@@ -848,9 +846,9 @@ public class Parser {
 
         child = parseUnaryExp(depth + 1);
         connect(mulExp, child);
-        while (curTokenType() == Token.Type.MULT
-                || curTokenType() == Token.Type.DIV
-                || curTokenType() == Token.Type.MOD) {
+        while (curTokenType() == Token.TokenType.MULT
+                || curTokenType() == Token.TokenType.DIV
+                || curTokenType() == Token.TokenType.MOD) {
             child.setDepth(depth + 2);
             mulExp = addSelfNode(mulExp, GrammarSymbol.MulExp, depth);
 
@@ -871,8 +869,8 @@ public class Parser {
         child = parseMulExp(depth + 1);
         connect(addExp, child);
 
-        while (curTokenType() == Token.Type.PLUS
-                || curTokenType() == Token.Type.MINU) {
+        while (curTokenType() == Token.TokenType.PLUS
+                || curTokenType() == Token.TokenType.MINU) {
             addExp = addSelfNode(addExp, GrammarSymbol.AddExp, depth);
             child.setDepth(depth + 2);
 
@@ -894,10 +892,10 @@ public class Parser {
         child = parseAddExp(depth + 1);
         connect(relExp, child);
 
-        while (curTokenType() == Token.Type.LSS
-                || curTokenType() == Token.Type.LEQ
-                || curTokenType() == Token.Type.GRE
-                || curTokenType() == Token.Type.GEQ) {
+        while (curTokenType() == Token.TokenType.LSS
+                || curTokenType() == Token.TokenType.LEQ
+                || curTokenType() == Token.TokenType.GRE
+                || curTokenType() == Token.TokenType.GEQ) {
             relExp = addSelfNode(relExp, GrammarSymbol.RelExp, depth);
             child.setDepth(depth + 2);
 
@@ -919,8 +917,8 @@ public class Parser {
         child = parseRelExp(depth + 1);
         connect(eqExp, child);
 
-        while (curTokenType() == Token.Type.EQL
-                || curTokenType() == Token.Type.NEQ) {
+        while (curTokenType() == Token.TokenType.EQL
+                || curTokenType() == Token.TokenType.NEQ) {
             eqExp = addSelfNode(eqExp, GrammarSymbol.EqExp, depth);
             child.setDepth(depth + 2);
 
@@ -942,7 +940,7 @@ public class Parser {
         child = parseEqExp(depth + 1);
         connect(lAndExp, child);
 
-        while (curTokenType() == Token.Type.AND) {
+        while (curTokenType() == Token.TokenType.AND) {
             lAndExp = addSelfNode(lAndExp, GrammarSymbol.LAndExp, depth);
             child.setDepth(depth + 2);
 
@@ -964,7 +962,7 @@ public class Parser {
         child = parseLAndExp(depth + 1);
         connect(lOrExp, child);
 
-        while (curTokenType() == Token.Type.OR) {
+        while (curTokenType() == Token.TokenType.OR) {
             lOrExp = addSelfNode(lOrExp, GrammarSymbol.LOrExp, depth);
             child.setDepth(depth + 2);
 
@@ -990,14 +988,14 @@ public class Parser {
 
     private boolean ifStmtHaveEqual() {
         int i = pos;
-        while (tokens.get(i).getType() != Token.Type.SEMICN &&
-                tokens.get(i).getType() != Token.Type.ASSIGN &&
+        while (tokens.get(i).getType() != Token.TokenType.SEMICN &&
+                tokens.get(i).getType() != Token.TokenType.ASSIGN &&
                 tokens.get(i).getLine() == curToken().getLine()) {
             i++;
             if (i >= length) {
                 return false;
             }
         }
-        return tokens.get(i).getType() == Token.Type.ASSIGN;
+        return tokens.get(i).getType() == Token.TokenType.ASSIGN;
     }
 }
