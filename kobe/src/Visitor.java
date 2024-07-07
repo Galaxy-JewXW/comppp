@@ -64,7 +64,7 @@ public class Visitor {
         for (int i = 2; i < node.getChildrenSize() - 1; i += 2) {
             visitConstDef(node.getChild(i));
         }
-        ASTNode lastChild = node.getChildren().get(node.getChildrenSize() - 1);
+        ASTNode lastChild = node.getChild(-1);
         if (lastChild instanceof ErrorNode errorNode) {
             errors.add(errorNode.toString());
         }
@@ -93,7 +93,6 @@ public class Visitor {
                 errors.add(errorNode.toString());
             }
         }
-
         visitConstInitVal(node.getChild(-1), curDimensions.size());
         switch (curConstValue.getType()) {
             case "int":
@@ -111,9 +110,6 @@ public class Visitor {
             default:
                 break;
         }
-
-
-
     }
 
     // 常量初值 ConstInitVal -> ConstExp | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
