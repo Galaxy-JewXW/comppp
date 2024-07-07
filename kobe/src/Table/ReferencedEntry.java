@@ -1,3 +1,7 @@
+package Table;
+
+import Table.TableEntryType;
+
 public class ReferencedEntry {
     private TableEntryType actualType;
     private TableEntryType referencedType;

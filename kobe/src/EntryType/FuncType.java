@@ -1,8 +1,8 @@
 package EntryType;
 
 public enum FuncType {
-    VoidFunc,
-    IntFunc,
-    MainFunc,
-    NoFunc,
+    VOID,
+    INT,
+    MAIN,
+    NO,
 }

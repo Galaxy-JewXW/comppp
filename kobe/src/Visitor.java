@@ -1,6 +1,9 @@
 import EntryType.*;
 import Lexer.Token;
 import Parser.*;
+import Table.SymbolTable;
+import Table.TableEntry;
+import Table.TableEntryType;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -22,7 +25,7 @@ public class Visitor {
 
     public Visitor(ASTNode root) {
         this.root = root;
-        this.curFuncType = FuncType.NoFunc;
+        this.curFuncType = FuncType.NO;
         this.funcEndLine = 0;
     }
 
@@ -252,14 +255,14 @@ public class Visitor {
         SymbolTable funcSymbolTable = new SymbolTable(curSymbolTable, false);
         curSymbolTable.addChildTable(funcSymbolTable);
 
-        if (funcType.getToken().getType().equals(Token.Type.VOIDTK)) {
+        if (funcType.getToken().getType() == Token.Type.VOIDTK) {
             FunctionVoid functionVoid = new FunctionVoid();
             funcEntry = new TableEntry(ident, functionVoid);
-            curFuncType = FuncType.VoidFunc;
-        } else if (funcType.getToken().getType().equals(Token.Type.INTTK)) {
+            curFuncType = FuncType.VOID;
+        } else if (funcType.getToken().getType() == Token.Type.INTTK) {
             FunctionInt functionInt = new FunctionInt();
             funcEntry = new TableEntry(ident, functionInt);
-            curFuncType = FuncType.IntFunc;
+            curFuncType = FuncType.INT;
         }
         curSymbolTable.addEntry(ident.getToken().getValue(), funcEntry);
         curSymbolTable = funcSymbolTable;
@@ -273,19 +276,16 @@ public class Visitor {
         }
 
         receiveReturn = false;
-
         visitBlock(node.getChild(-1), true);
 
-        if (curFuncType == FuncType.IntFunc && !receiveReturn) {
+        if (curFuncType == FuncType.INT && !receiveReturn) {
             errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLine, null, 0)
                     .toString());
         }
 
         curSymbolTable = curSymbolTable.getParent();
-
         receiveReturn = false;
-        curFuncType = FuncType.NoFunc;
-
+        curFuncType = FuncType.NO;
     }
 
     // 主函数定义 MainFuncDef -> 'int' 'main' '(' ')' Block
@@ -297,7 +297,7 @@ public class Visitor {
         curSymbolTable = mainSymbolTable;
 
         receiveReturn = false;
-        curFuncType = FuncType.MainFunc;
+        curFuncType = FuncType.MAIN;
 
         visitBlock(node.getChild(-1), true);
 
@@ -307,7 +307,7 @@ public class Visitor {
         }
 
         receiveReturn = false;
-        curFuncType = FuncType.NoFunc;
+        curFuncType = FuncType.NO;
         curSymbolTable = curSymbolTable.getParent();
     }
 
@@ -329,7 +329,6 @@ public class Visitor {
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
         }
-
         switch (node.getChildrenSize()) {
             case 2: // BType Ident
                 return new TableEntry(ident, new Var());
@@ -339,13 +338,13 @@ public class Visitor {
                 }
                 return new TableEntry(ident, new Array1());
             case 7: // BType Ident '[' ']'  '[' ConstExp ']'
-                visitConstExp(node.getChild(5));
                 if (node.getChild(3) instanceof ErrorNode errorNode) {
                     errors.add(errorNode.toString());
                 }
                 if (node.getChild(6) instanceof ErrorNode errorNode) {
                     errors.add(errorNode.toString());
                 }
+                visitConstExp(node.getChild(5));
                 return new TableEntry(ident, new Array2(curInt));
             default:
                 throw new RuntimeException();
@@ -384,10 +383,9 @@ public class Visitor {
             // Stmt -> LVal '=' Exp ';'
             // Stmt -> LVal '=' 'getint''('')'';'
             visitLval(first);
-            if (curTableEntry == null)
+            if (curTableEntry == null) {
                 return;
-
-            if (curTableEntry.isConst()) {
+            } else if (curTableEntry.isConst()) {
                 errors.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
                         null, 0).toString());
             }
@@ -452,7 +450,7 @@ public class Visitor {
             }
         } else if (first.getToken().getType()== Token.Type.RETURNTK) {
             receiveReturn = inFunc;
-            if (curFuncType == FuncType.VoidFunc &&
+            if (curFuncType == FuncType.VOID &&
                     node.getChild(1).getGrammarSymbol() == GrammarSymbol.Exp) {
                 errors.add(new ErrorNode(ErrorType.ReturnTypeError, first.getToken().getLine(),
                         null, 0).toString());
@@ -550,7 +548,7 @@ public class Visitor {
     // k -> RBRACKMissing
     private void visitLval(ASTNode node) {
         ASTNode ident = node.getChild(0);
-        if (!curSymbolTable.nameExisted(ident.getToken().getValue())) {
+        if (!curSymbolTable.haveName(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentUndefined, ident.getToken()
                     .getLine(), null, 0).toString());
             curInt = 0;
@@ -575,7 +573,6 @@ public class Visitor {
         }
 
         TableEntry referencedTableEntry;
-
         if (l == 4) {
             if (tableEntry.getTableEntryType() == TableEntryType.Array1 ||
                     tableEntry.getTableEntryType() == TableEntryType.ConstArray1) {
@@ -646,7 +643,7 @@ public class Visitor {
                 curInt *= op;
             }
         } else if (first.getToken().getType() == Token.Type.IDENFR) {
-            if (!curSymbolTable.nameExisted(first.getToken().getValue())) {
+            if (!curSymbolTable.haveName(first.getToken().getValue())) {
                 errors.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
                         .getLine(), null, 0).toString());
                 curInt = 0;
@@ -773,7 +770,7 @@ public class Visitor {
     }
 
     private boolean ParamErrorHelper(TableEntry tableEntry, int lineNum) {
-        int rParamSize = tableEntry.getFuncRParamsNum();
+        int rParamSize = tableEntry.getFuncRParamsSize();
         // d -> Parser.ParaNumNotMatch
         if (tableEntry.funcParamsNum() != rParamSize) {
             errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
@@ -784,7 +781,7 @@ public class Visitor {
         // e -> Parser.ParaTypeNotMatch
         ArrayList<FuncParam> definedFuncParams = tableEntry.getFuncParams();
         for (int i = 0; i < rParamSize; i++) {
-            if (!tableEntry.getFuncRParam(i).hasSameType(definedFuncParams.get(i))) {
+            if (!tableEntry.getFuncRParam(i).haveSameType(definedFuncParams.get(i))) {
                 errors.add(new ErrorNode(ErrorType.ParaTypeNotMatch, lineNum,
                         null, 0).toString());
                 return true;

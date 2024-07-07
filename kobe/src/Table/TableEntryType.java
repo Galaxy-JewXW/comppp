@@ -1,3 +1,5 @@
+package Table;
+
 public enum TableEntryType {
     Var, // 变量
     ConstVar, // 常量

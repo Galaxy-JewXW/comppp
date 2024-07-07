@@ -1,3 +1,5 @@
+package Table;
+
 import EntryType.*;
 import Parser.ASTNode;
 
@@ -18,7 +20,7 @@ public class TableEntry {
     private ReferencedEntry referencedEntry;
 
     private TableEntry definedEntry;
-    private ArrayList<TableEntry> funcRParams;
+    private ArrayList<TableEntry> funcRParams = null;
 
     public TableEntry() {
 
@@ -111,7 +113,7 @@ public class TableEntry {
         this.funcRParams.clear();
     }
 
-    public int getFuncRParamsNum() {
+    public int getFuncRParamsSize() {
         return this.funcRParams.size();
     }
 
@@ -150,7 +152,7 @@ public class TableEntry {
         }
     }
 
-    public boolean hasSameType(FuncParam funcParam) {
+    public boolean haveSameType(FuncParam funcParam) {
         if (this.getActualType() == TableEntryType.Var ||
                 this.getActualType() == TableEntryType.ConstVar ||
                 this.getActualType() == TableEntryType.FunctionInt) {
@@ -186,7 +188,7 @@ public class TableEntry {
         } else if (tableEntryType == TableEntryType.FunctionInt) {
             return getName() + " FunctionInt";
         } else {
-            return getName() + " ReferencedEntry ActualType is " + referencedEntry.getActualType();
+            return getName() + " Table.ReferencedEntry ActualType is " + referencedEntry.getActualType();
         }
     }
 
@@ -197,15 +199,11 @@ public class TableEntry {
         return this.node.getToken().getValue();
     }
 
-    public ASTNode getNode() {
-        return node;
-    }
-
     public TableEntryType getTableEntryType() {
         return tableEntryType;
     }
 
-    public int getD2ForArray2() {
+    public int getD24Array2() {
         if (tableEntryType == TableEntryType.Array2) {
             return array2.getDimension2();
         } else {
@@ -229,28 +227,28 @@ public class TableEntry {
         return constArray2;
     }
 
-    public void addParamForFuncEntry(TableEntry param) {
+    public void addParamForFuncEntry(TableEntry entry) {
         if (tableEntryType == TableEntryType.FunctionVoid) {
-            if (param.getTableEntryType().equals(TableEntryType.Var) ||
-            param.getTableEntryType().equals(TableEntryType.ConstVar)) {
+            if (entry.getTableEntryType().equals(TableEntryType.Var) ||
+            entry.getTableEntryType().equals(TableEntryType.ConstVar)) {
                 functionVoid.addVarParam(new Var());
-            } else if (param.getTableEntryType().equals(TableEntryType.Array1) ||
-            param.getTableEntryType().equals(TableEntryType.ConstArray1)) {
+            } else if (entry.getTableEntryType().equals(TableEntryType.Array1) ||
+            entry.getTableEntryType().equals(TableEntryType.ConstArray1)) {
                 functionVoid.addArray1Param(new Array1());
-            } else if (param.getTableEntryType().equals(TableEntryType.Array2) ||
-                    param.getTableEntryType().equals(TableEntryType.ConstArray2)) {
-                functionVoid.addArray2Param(new Array2(param.getD2ForArray2()));
+            } else if (entry.getTableEntryType().equals(TableEntryType.Array2) ||
+                    entry.getTableEntryType().equals(TableEntryType.ConstArray2)) {
+                functionVoid.addArray2Param(new Array2(entry.getD24Array2()));
             }
         } else if (tableEntryType == TableEntryType.FunctionInt) {
-            if (param.getTableEntryType().equals(TableEntryType.Var) ||
-                    param.getTableEntryType().equals(TableEntryType.ConstVar)) {
+            if (entry.getTableEntryType().equals(TableEntryType.Var) ||
+                    entry.getTableEntryType().equals(TableEntryType.ConstVar)) {
                 functionInt.addVarParam(new Var());
-            } else if (param.getTableEntryType().equals(TableEntryType.Array1) ||
-                    param.getTableEntryType().equals(TableEntryType.ConstArray1)) {
+            } else if (entry.getTableEntryType().equals(TableEntryType.Array1) ||
+                    entry.getTableEntryType().equals(TableEntryType.ConstArray1)) {
                 functionInt.addArray1Param(new Array1());
-            } else if (param.getTableEntryType().equals(TableEntryType.Array2) ||
-                    param.getTableEntryType().equals(TableEntryType.ConstArray2)) {
-                functionInt.addArray2Param(new Array2(param.getD2ForArray2()));
+            } else if (entry.getTableEntryType().equals(TableEntryType.Array2) ||
+                    entry.getTableEntryType().equals(TableEntryType.ConstArray2)) {
+                functionInt.addArray2Param(new Array2(entry.getD24Array2()));
             }
         }
     }

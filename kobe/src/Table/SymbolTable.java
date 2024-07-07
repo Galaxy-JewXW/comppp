@@ -1,17 +1,17 @@
+package Table;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SymbolTable {
-    private boolean isRoot;
-    private SymbolTable parent;
-    private ArrayList<SymbolTable> children;
-    private HashMap<String, TableEntry> entries;
+    private final boolean isRoot;
+    private final SymbolTable parent;
+    private final ArrayList<SymbolTable> children = new ArrayList<>();
+    private final HashMap<String, TableEntry> entries = new HashMap<>();
 
     public SymbolTable(SymbolTable parent, boolean isRoot) {
         this.isRoot = isRoot;
         this.parent = parent;
-        this.children = new ArrayList<>();
-        this.entries = new HashMap<>();
     }
 
     public void addEntry(String name, TableEntry entry) {
@@ -30,16 +30,11 @@ public class SymbolTable {
         return parent;
     }
 
-    public boolean isRoot() {
-        return isRoot;
-    }
-
-    public boolean nameExisted(String name) {
+    public boolean haveName(String name) {
         if (entries.containsKey(name)) {
             return true;
-        }
-        if (parent != null) {
-            return parent.nameExisted(name);
+        } else if (parent != null) {
+            return parent.haveName(name);
         }
         return false;
     }
@@ -47,8 +42,7 @@ public class SymbolTable {
     public TableEntry getEntry(String name) {
         if (entries.containsKey(name)) {
             return entries.get(name);
-        }
-        if (parent != null) {
+        } else if (parent != null) {
             return parent.getEntry(name);
         }
         return null;
