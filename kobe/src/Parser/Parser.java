@@ -862,7 +862,7 @@ public class Parser {
         return mulExp;
     }
 
-    // AddExp -> MulExp | AddExp ('+' | '−') MulExp
+    // 加减表达式 AddExp -> MulExp | AddExp ('+' | '−') MulExp
     // AddExp -> MulExp { ('+' | '−') MulExp }
     public ASTNode parseAddExp(int depth) {
         ASTNode addExp = new ASTNode(GrammarSymbol.AddExp, null, depth);
