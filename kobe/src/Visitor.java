@@ -99,16 +99,16 @@ public class Visitor {
         visitConstInitVal(node.getChild(-1), curDimensions.size());
         switch (curConstValue.getType()) {
             case "int":
-                TableEntry varEntry = new TableEntry(ident, curConstValue.getVar(), false);
-                curSymbolTable.addEntry(ident.getToken().getValue(), varEntry);
+                curSymbolTable.addEntry(ident.getToken().getValue(),
+                        new TableEntry(ident, curConstValue.getVar(), false));
                 break;
             case "Array1":
-                TableEntry array1Entry = new TableEntry(ident, curConstValue.getArray1(), false);
-                curSymbolTable.addEntry(ident.getToken().getValue(), array1Entry);
+                curSymbolTable.addEntry(ident.getToken().getValue(),
+                        new TableEntry(ident, curConstValue.getArray1(), false));
                 break;
             case "Array2":
-                TableEntry array2Entry = new TableEntry(ident, curConstValue.getArray2(), false);
-                curSymbolTable.addEntry(ident.getToken().getValue(), array2Entry);
+                curSymbolTable.addEntry(ident.getToken().getValue(),
+                        new TableEntry(ident, curConstValue.getArray2(), false));
                 break;
             default:
                 break;
@@ -183,7 +183,7 @@ public class Visitor {
     // k -> RBRACKMissing
     public void visitVarDef(ASTNode node) {
         ASTNode ident = node.getChild(0);
-        if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
+        if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
             return;
@@ -205,31 +205,35 @@ public class Visitor {
             visitInitVal(node.getChild(-1));
         }
 
-        if (curDimensions.isEmpty()) { // VarDef -> Ident
-            TableEntry varEntry = new TableEntry(ident, new Var(), false);
-            curSymbolTable.addEntry(ident.getToken().getValue(), varEntry);
-        } else if (curDimensions.size() == 1){ // VarDef -> Ident [] '=' InitVal
-            TableEntry array1Entry = new TableEntry(ident, new Array1(curDimensions.get(0)), false);
-            curSymbolTable.addEntry(ident.getToken().getValue(), array1Entry);
-        } else if (curDimensions.size() == 2) {
-            TableEntry array2Entry = new TableEntry(ident, new Array2(curDimensions.get(0),
-                    curDimensions.get(1)), false);
-            curSymbolTable.addEntry(ident.getToken().getValue(), array2Entry);
+        switch (curDimensions.size()) {
+            case 0:
+                curSymbolTable.addEntry(ident.getToken().getValue(),
+                        new TableEntry(ident, new Var(), false));
+                break;
+            case 1:
+                curSymbolTable.addEntry(ident.getToken().getValue(),
+                        new TableEntry(ident, new Array1(curDimensions.get(0)), false));
+                break;
+            case 2:
+                curSymbolTable.addEntry(ident.getToken().getValue(),
+                        new TableEntry(ident, new Array2(curDimensions.get(0), curDimensions.get(1)),
+                                false));
+                break;
+            default:
+                break;
         }
 
     }
 
-    // InitVal -> Exp | '{' [ InitVal { ',' InitVal } ] '}'
+    // 变量初值 InitVal -> Exp | '{' [ InitVal { ',' InitVal } ] '}'
     // 注意这里和ConstInitVal的区别: 这里不一定能算出来初值，所以不需要在这里进行赋值
     public void visitInitVal(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitExp(node.getChild(0));
-        } else {
-            int i = 1;
-            while (i < node.getChildrenSize() - 1) {
-                visitInitVal(node.getChild(i));
-                i += 2;
-            }
+            return;
+        }
+        for (int i = 1; i < node.getChildrenSize() - 1; i += 2) {
+            visitInitVal(node.getChild(i));
         }
     }
 
