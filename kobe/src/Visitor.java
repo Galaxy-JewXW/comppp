@@ -507,23 +507,26 @@ public class Visitor {
         String format = node.getToken().getValue();
         int l = format.length();
         int count = 0;
+
         for (int i = 1; i < l - 1; i++) {
             char c = format.charAt(i);
-            if (c != 32 && c != 33 && !(c >= 40 && c <= 126)) {
+            if (c != ' ' && c != '!' && !(c >= '(' && c <= '~')) {
                 if (c == '%') {
                     if (i < l - 1 && format.charAt(i + 1) == 'd') {
                         count++;
+                        i++;
                         continue;
-                    } else {
-                        return -1;
                     }
+                    return -1;
                 }
                 return -1;
             }
-            if (c == 92 && (i >= l - 1 || format.charAt(i + 1) != 'n')) {
+
+            if (c == '\\' && (i >= l - 1 || format.charAt(i + 1) != 'n')) {
                 return -1;
             }
         }
+
         return count;
     }
 
