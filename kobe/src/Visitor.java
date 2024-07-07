@@ -60,7 +60,7 @@ public class Visitor {
         }
     }
 
-    // ConstDecl -> 'const' BType ConstDef { ',' ConstDef } ';'
+    // 常量声明 ConstDecl -> 'const' BType ConstDef { ',' ConstDef } ';'
     // i -> MissingSEMICN
     public void visitConstDecl(ASTNode node) {
         for (int i = 2; i < node.getChildrenSize() - 1; i += 2) {
@@ -72,11 +72,10 @@ public class Visitor {
         }
     }
 
-    // ConstDef -> Ident { '[' ConstExp ']' } '=' ConstInitVal
+    // 常数定义 ConstDef -> Ident { '[' ConstExp ']' } '=' ConstInitVal
     // b -> IdentRedefined
     // k -> RBRACKMissing
     public void visitConstDef(ASTNode node) {
-        // Ident
         ASTNode ident = node.getChild(0);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
@@ -98,9 +97,7 @@ public class Visitor {
             }
         }
 
-        // ConstInitVal
         visitConstInitVal(node.getChild(-1), curDimensions.size());
-
         switch (curConstValue.getType()) {
             case "int":
                 TableEntry varEntry = new TableEntry(ident, curConstValue.getVar(), false);
@@ -122,21 +119,10 @@ public class Visitor {
 
     }
 
-    // ConstInitVal -> ConstExp
-    //    | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
+    // ConstInitVal -> ConstExp | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
     public void visitConstInitVal(ASTNode node, int dimension) {
-        if (debug) {
-            System.out.println("Visitor Enter ConstInitVal");
-            System.out.println("dimension is " + dimension);
-            if (node.getGrammarSymbol() != null) {
-                System.out.println("ConstInitVal Node is " + node.getGrammarSymbol());
-            } else {
-                System.out.println("ConstInitVal Node is " + node.getToken().getType());
-            }
-            node.printAllChildren();
-        }
         switch (dimension) {
-            case 0: // ConstExp
+            case 0:
                 isConstant = true;
                 visitConstExp(node.getChild(0));
                 isConstant = false;
@@ -147,19 +133,17 @@ public class Visitor {
             case 1:
                 if (!isMultiArrayInit) {
                     int d1 = curDimensions.get(0);
-                    int p = 0;
                     ArrayList<Integer> values = new ArrayList<>();
-                    for (int i = 1; p < d1; i += 2, p++) {
+                    for (int i = 1, p = 0; p < d1; i += 2, p++) {
                         isConstant = true;
                         visitConstExp(node.getChild(i).getChild(0));
                         isConstant = false;
                         values.add(curInt);
                     }
-                    ConstArray1 constArray1 = new ConstArray1(d1, values);
-                    curConstValue = new ConstValue("Array1", constArray1);
+                    curConstValue = new ConstValue("Array1", new ConstArray1(d1, values));
                 } else {
                     int d1 = (node.getChildrenSize() + 1) / 2;
-                    for (int i = 1; i < d1; i+=2) {
+                    for (int i = 1; i < d1; i += 2) {
                         isConstant = true;
                         visitConstExp(node.getChild(i).getChild(0));
                         isConstant = false;
@@ -174,9 +158,6 @@ public class Visitor {
                 int p = 0;
                 curConstValue = new ConstValue("Array2", new ConstArray2(d1, d2));
                 for (int i = 1; p < d1; i += 2, p++) {
-                    if (debug) {
-                        System.out.println("child(i) is " + node.getChild(i));
-                    }
                     visitConstInitVal(node.getChild(i), 1);
                 }
                 isMultiArrayInit = false;
