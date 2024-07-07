@@ -278,11 +278,11 @@ public class Visitor {
         visitBlock(node.getChild(-1), true);
 
         if (curFuncType == FuncType.IntFunc && !receiveReturn) {
-            errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0).toString());
+            errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0)
+                    .toString());
         }
 
         curSymbolTable = curSymbolTable.getParent();
-        assert curSymbolTable.isRoot();
 
         receiveReturn = false;
         curFuncType = FuncType.NotFunc;
@@ -290,23 +290,18 @@ public class Visitor {
 
     }
 
-    // MainFuncDef -> 'int' 'main' '(' ')' Block // g j
+    // 主函数定义 MainFuncDef -> 'int' 'main' '(' ')' Block
     // g -> ReturnMissing
     // j -> RPARENTMissing
     public void visitMainFuncDef(ASTNode node) {
-        if (debug) {
-            System.out.println("Visitor Enter MainFuncDef");
-        }
         SymbolTable mainSymbolTable = new SymbolTable(curSymbolTable, false);
         curSymbolTable.addChildTable(mainSymbolTable);
         curSymbolTable = mainSymbolTable;
 
-        // Bool change
         receiveReturn = false;
         createSTableBeforeBlock = true;
         curFuncType = FuncType.MainFunc;
 
-        // Block
         visitBlock(node.getChild(-1), true);
 
         if (!receiveReturn) {
@@ -314,95 +309,65 @@ public class Visitor {
                     null, 0).toString());
         }
 
-        // recover
         receiveReturn = false;
         curFuncType = FuncType.NotFunc;
         createSTableBeforeBlock = false;
         curSymbolTable = curSymbolTable.getParent();
     }
 
-    // FuncFParams -> FuncFParam { ',' FuncFParam }
-    // 函数形式参数同名在此解决
-    // Waiting to solve
+    // 函数形参表 FuncFParams -> FuncFParam { ',' FuncFParam }
     public void visitFuncFParams(ASTNode node, TableEntry funcEntry) {
-        int i = 0;
-        TableEntry funcFParam;
-        while (i < node.getChildrenSize()) {
-            funcFParam = visitFuncFParam(node.getChild(i));
-//           if (curSymbolTable.containsEntry(funcFParam.getName())) {
-//               errors.add(new ErrorNode(ErrorType.IdentRedefined, funcFParam.getNode()
-//                       .getToken().getLine(), null, 0).toString());
-//           } else {
+        for (int i = 0; i < node.getChildrenSize(); i += 2) {
+            TableEntry funcFParam = visitFuncFParam(node.getChild(i));
             curSymbolTable.addEntry(funcFParam.getName(), funcFParam);
-//            }
             funcEntry.addParamForFuncEntry(funcFParam);
-            i += 2;
         }
     }
 
-    //  FuncFParam -> BType Ident ['[' ']' { '[' ConstExp ']' }]  //   b k
+    // 函数形参 FuncFParam -> BType Ident ['[' ']' { '[' ConstExp ']' }]
     // b -> IdentRedefined
     // k -> RBRACKMissing
     public TableEntry visitFuncFParam(ASTNode node) {
         ASTNode ident = node.getChild(1);
-        if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 保证形参没有重名
+        if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
         }
 
-        if (node.getChildrenSize() == 2) { // BType Ident
-            return new TableEntry(ident, new Var(), true);
-        }
-        else if (node.getChildrenSize() == 4) {
-            if (node.getChild(3) instanceof ErrorNode errorNode) {
-                errors.add(errorNode.toString());
-            }
-
-            return new TableEntry(ident, new Array1(), true);
-        }
-        else if (node.getChildrenSize() == 7) {
-            // 获取第二维数
-            visitConstExp(node.getChild(5));
-            if (node.getChild(3) instanceof ErrorNode errorNode) {
-                errors.add(errorNode.toString());
-            }
-
-            if (node.getChild(6) instanceof ErrorNode errorNode) {
-                errors.add(errorNode.toString());
-            }
-
-            return new TableEntry(ident, new Array2(curInt), true);
-        } else {
-            throw new RuntimeException("FuncFParam has no match condition!!!!");
+        switch (node.getChildrenSize()) {
+            case 2:
+                return new TableEntry(ident, new Var(), true);
+            case 4:
+                if (node.getChild(3) instanceof ErrorNode errorNode) {
+                    errors.add(errorNode.toString());
+                }
+                return new TableEntry(ident, new Array1(), true);
+            case 7:
+                visitConstExp(node.getChild(5));
+                if (node.getChild(3) instanceof ErrorNode errorNode) {
+                    errors.add(errorNode.toString());
+                }
+                if (node.getChild(6) instanceof ErrorNode errorNode) {
+                    errors.add(errorNode.toString());
+                }
+                return new TableEntry(ident, new Array2(curInt), true);
+            default:
+                throw new RuntimeException();
         }
     }
 
-    // Block -> '{' { BlockItem } '}'
-    // 调用前新建符号表
+    // 语句块 Block -> '{' { BlockItem } '}'
     public void visitBlock(ASTNode node, boolean inFuncBlock) {
-        if (debug) {
-            System.out.println("Visitor Enter Block");
-        }
-
-        assert createSTableBeforeBlock;
         createSTableBeforeBlock = false;
-
-        int i = 1;
-        while (i < node.getChildrenSize() - 1) {
+        for (int i = 1; i < node.getChildrenSize() - 1; i++) {
             visitBlockItem(node.getChild(i), inFuncBlock);
-            i++;
         }
-
-        funcEndLineNum = node.getChild(-1).getToken().getLine(); // 函数结尾的右括号所在的行号
+        funcEndLineNum = node.getChild(-1).getToken().getLine();
     }
 
-    // BlockItem -> Decl | Stmt
+    // 语句块项 BlockItem -> Decl | Stmt
     public void visitBlockItem(ASTNode node, boolean inFuncBlock) {
-        if (debug) {
-            System.out.println("Visitor Enter BlockItem");
-        }
-
-        if (Objects.equals(node.getChild(0).getGrammarSymbol(), GrammarSymbol.Decl)) {
+        if (node.getChild(0).getGrammarSymbol() == GrammarSymbol.Decl) {
             visitDecl(node.getChild(0));
         } else {
             visitStmt(node.getChild(0), inFuncBlock);
