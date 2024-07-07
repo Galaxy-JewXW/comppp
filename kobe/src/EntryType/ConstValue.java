@@ -1,6 +1,5 @@
 package EntryType;
 
-import EntryType.*;
 
 public class ConstValue {
     // 用于常量初始化解析 (ConstInitVal)

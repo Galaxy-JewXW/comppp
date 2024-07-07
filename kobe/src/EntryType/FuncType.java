@@ -4,5 +4,5 @@ public enum FuncType {
     VoidFunc,
     IntFunc,
     MainFunc,
-    NotFunc,
+    NoFunc,
 }

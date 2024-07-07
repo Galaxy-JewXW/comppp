@@ -11,14 +11,14 @@ public class Array2 extends FuncParam {
         this.dimension1 = d1;
         this.dimension2 = d2;
         this.values = new ArrayList<>();
-        this.type = 2;
+        this.dimension = 2;
     }
 
     public Array2(int d2) { // 作为函数形参
         this.dimension2 = d2;
         this.dimension1 = 0;
         this.values = new ArrayList<>();
-        this.type = 2;
+        this.dimension = 2;
     }
 
     public int getValue(int i1, int i2) {
@@ -30,6 +30,6 @@ public class Array2 extends FuncParam {
     }
 
     public int getType() {
-        return type;
+        return dimension;
     }
 }

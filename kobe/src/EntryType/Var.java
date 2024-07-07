@@ -5,16 +5,16 @@ public class Var extends FuncParam {
 
     public Var(int value) {
         this.value = value;
-        this.type = 0;
+        this.dimension = 0;
     }
 
     public Var() { // 作为函数形参
-        this.type = 0;
+        this.dimension = 0;
         this.value = 0;
     }
 
     public int getType() {
-        return type;
+        return dimension;
     }
 
     public int getValue() {

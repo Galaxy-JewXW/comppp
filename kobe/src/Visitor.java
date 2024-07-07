@@ -9,23 +9,22 @@ import java.util.Objects;
 
 public class Visitor {
     private final ASTNode root;
-    private SymbolTable curSymbolTable= new SymbolTable(null, true);
+    private SymbolTable curSymbolTable = new SymbolTable(null, true);
     private final ArrayList<String> errors = new ArrayList<>();
     private final ArrayList<Integer> curDimensions = new ArrayList<>();
     private ConstValue curConstValue;
-    private boolean isMultiArrayInit = false;
     private boolean isConstant = false;
     private int curInt;
     private boolean receiveReturn = false;
     private FuncType curFuncType;
-    private int funcEndLineNum;
+    private int funcEndLine;
     private TableEntry curTableEntry = null;
     private int forLevel = 0;
 
     public Visitor(ASTNode root) {
         this.root = root;
-        this.curFuncType = FuncType.NotFunc;
-        this.funcEndLineNum = 0;
+        this.curFuncType = FuncType.NoFunc;
+        this.funcEndLine = 0;
     }
 
     // 编译单元 CompUnit -> {Decl} {FuncDef} MainFuncDef
@@ -114,6 +113,7 @@ public class Visitor {
 
     // 常量初值 ConstInitVal -> ConstExp | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
     public void visitConstInitVal(ASTNode node, int dimension) {
+        int d1;
         switch (dimension) {
             case 0:
                 isConstant = true;
@@ -124,36 +124,31 @@ public class Visitor {
                 curConstValue = new ConstValue("int", constVar);
                 break;
             case 1:
-                if (isMultiArrayInit) {
-                    int d1 = (node.getChildrenSize() + 1) / 2;
-                    for (int i = 1; i < d1; i += 2) {
-                        isConstant = true;
-                        visitConstExp(node.getChild(i).getChild(0));
-                        isConstant = false;
-                        curConstValue.addValues(curInt);
-                    }
-                } else {
-                    int d1 = curDimensions.get(0);
-                    ArrayList<Integer> values = new ArrayList<>();
-                    for (int i = 1, p = 0; p < d1; i += 2, p++) {
-                        isConstant = true;
-                        visitConstExp(node.getChild(i).getChild(0));
-                        isConstant = false;
-                        values.add(curInt);
-                    }
-                    curConstValue = new ConstValue("Array1", new ConstArray1(d1, values));
+                d1 = curDimensions.get(0);
+                ArrayList<Integer> values = new ArrayList<>();
+                for (int i = 1, p = 0; p < d1; i += 2, p++) {
+                    isConstant = true;
+                    visitConstExp(node.getChild(i).getChild(0));
+                    isConstant = false;
+                    values.add(curInt);
                 }
+                curConstValue = new ConstValue("Array1", new ConstArray1(d1, values));
                 break;
             case 2:
-                isMultiArrayInit = true;
-                int d1 = curDimensions.get(0);
+                d1 = curDimensions.get(0);
                 int d2 = curDimensions.get(1);
                 int p = 0;
                 curConstValue = new ConstValue("Array2", new ConstArray2(d1, d2));
                 for (int i = 1; p < d1; i += 2, p++) {
-                    visitConstInitVal(node.getChild(i), 1);
+                    ASTNode temp = node.getChild(i);
+                    int d11 = (temp.getChildrenSize() + 1) / 2;
+                    for (int j = 1; j < d11; j += 2) {
+                        isConstant = true;
+                        visitConstExp(temp.getChild(j).getChild(0));
+                        isConstant = false;
+                        curConstValue.addValues(curInt);
+                    }
                 }
-                isMultiArrayInit = false;
                 break;
             default:
                 break;
@@ -166,8 +161,8 @@ public class Visitor {
         for (int i = 1; i < node.getChildrenSize() - 1; i += 2) {
             visitVarDef(node.getChildren().get(i));
         }
-        ASTNode lastChild = node.getChildren().get(node.getChildrenSize() - 1);
-        if (lastChild instanceof ErrorNode errorNode) {
+        ASTNode last = node.getChild(-1);
+        if (last instanceof ErrorNode errorNode) {
             errors.add(errorNode.toString());
         }
     }
@@ -182,9 +177,9 @@ public class Visitor {
                     .getLine(), null, 0).toString());
             return;
         }
-        int length = node.getChildrenSize();
+        int l = node.getChildrenSize();
         curDimensions.clear();
-        for (int i = 1; i < length - 2 && node.getChild(i).getToken()
+        for (int i = 1; i < l - 2 && node.getChild(i).getToken()
                 .getType() == Token.Type.LBRACK; i += 3) {
             isConstant = true;
             visitConstExp(node.getChild(i + 1));
@@ -271,14 +266,14 @@ public class Visitor {
         visitBlock(node.getChild(-1), true);
 
         if (curFuncType == FuncType.IntFunc && !receiveReturn) {
-            errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0)
+            errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLine, null, 0)
                     .toString());
         }
 
         curSymbolTable = curSymbolTable.getParent();
 
         receiveReturn = false;
-        curFuncType = FuncType.NotFunc;
+        curFuncType = FuncType.NoFunc;
 
     }
 
@@ -296,12 +291,12 @@ public class Visitor {
         visitBlock(node.getChild(-1), true);
 
         if (!receiveReturn) {
-            errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum,
+            errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLine,
                     null, 0).toString());
         }
 
         receiveReturn = false;
-        curFuncType = FuncType.NotFunc;
+        curFuncType = FuncType.NoFunc;
         curSymbolTable = curSymbolTable.getParent();
     }
 
@@ -347,19 +342,19 @@ public class Visitor {
     }
 
     // 语句块 Block -> '{' { BlockItem } '}'
-    public void visitBlock(ASTNode node, boolean inFuncBlock) {
+    public void visitBlock(ASTNode node, boolean inFunc) {
         for (int i = 1; i < node.getChildrenSize() - 1; i++) {
-            visitBlockItem(node.getChild(i), inFuncBlock);
+            visitBlockItem(node.getChild(i), inFunc);
         }
-        funcEndLineNum = node.getChild(-1).getToken().getLine();
+        funcEndLine = node.getChild(-1).getToken().getLine();
     }
 
     // 语句块项 BlockItem -> Decl | Stmt
-    public void visitBlockItem(ASTNode node, boolean inFuncBlock) {
+    public void visitBlockItem(ASTNode node, boolean inFunc) {
         if (node.getChild(0).getGrammarSymbol() == GrammarSymbol.Decl) {
             visitDecl(node.getChild(0));
         } else {
-            visitStmt(node.getChild(0), inFuncBlock);
+            visitStmt(node.getChild(0), inFunc);
         }
     }
 
@@ -370,7 +365,7 @@ public class Visitor {
     // | 'return' [Exp] ';' // f i
     // | LVal '=' 'getint''('')'';' // h i j
     // | 'printf''('FormatString{,Exp}')'';' // i j l
-    public void visitStmt(ASTNode node, boolean inFuncBlock) {
+    public void visitStmt(ASTNode node, boolean inFunc) {
         ASTNode first = node.getChild(0);
         ASTNode last = node.getChild(-1);
 
@@ -387,8 +382,10 @@ public class Visitor {
             }
 
             if (node.getChild(2).getGrammarSymbol() == GrammarSymbol.Exp) {
+                // Stmt -> LVal '=' Exp ';'
                 visitExp(node.getChild(-2));
             } else if (node.getChild(4) instanceof ErrorNode errorNode) {
+                // Stmt -> LVal '=' 'getint''('')'';'
                 errors.add(errorNode.toString());
             }
             
@@ -397,7 +394,7 @@ public class Visitor {
             }
         } else if (first.getGrammarSymbol() == GrammarSymbol.Block) {
             curSymbolTable = new SymbolTable(curSymbolTable, false);
-            visitBlock(first, inFuncBlock);
+            visitBlock(first, inFunc);
             curSymbolTable = curSymbolTable.getParent();
         } else if (first.getGrammarSymbol() == GrammarSymbol.Exp
                 || node.getChildrenSize() == 1) {
@@ -405,21 +402,18 @@ public class Visitor {
             if (first.getGrammarSymbol() == GrammarSymbol.Exp) {
                 visitExp(first);
             }
-
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
         } else if (first.getToken().getType() == Token.Type.IFTK) {
             // Stmt -> 'if' '(' Cond ')' Stmt ['else' Stmt]
             visitCond(node.getChild(2));
-
             if (node.getChild(3) instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-
-            visitStmt(node.getChild(4), inFuncBlock);
+            visitStmt(node.getChild(4), inFunc);
             if (node.getChildrenSize() > 5) {
-                visitStmt(node.getChild(6), inFuncBlock);
+                visitStmt(node.getChild(6), inFunc);
             }
         } else if (first.getToken().getType() == Token.Type.FORTK) {
             forLevel++;
@@ -431,7 +425,7 @@ public class Visitor {
                 } else if (node.getChild(i) instanceof ErrorNode errorNode) {
                     errors.add(errorNode.toString());
                 } else if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.Stmt)) {
-                    visitStmt(node.getChild(i), inFuncBlock);
+                    visitStmt(node.getChild(i), inFunc);
                 }
             }
             forLevel--;
@@ -446,7 +440,7 @@ public class Visitor {
                 errors.add(errorNode.toString());
             }
         } else if (first.getToken().getType()== Token.Type.RETURNTK) {
-            receiveReturn = inFuncBlock;
+            receiveReturn = inFunc;
             if (curFuncType == FuncType.VoidFunc &&
                     node.getChild(1).getGrammarSymbol() == GrammarSymbol.Exp) {
                 errors.add(new ErrorNode(ErrorType.ReturnTypeError, first.getToken().getLine(),
@@ -461,10 +455,11 @@ public class Visitor {
                 errors.add(errorNode.toString());
             }
         } else if (first.getToken().getType().equals(Token.Type.PRINTFTK)) {
-            ASTNode formatStr = node.getChild(2);
-            int count = checkFormatString(formatStr);
+            // 'printf' '(' FormatString { , Exp } ')' ';'
+            ASTNode formatString = node.getChild(2);
+            int count = checkFormatString(formatString);
             if (count < 0) {
-                errors.add(new ErrorNode(ErrorType.IllegalChar, formatStr.getToken().getLine(),
+                errors.add(new ErrorNode(ErrorType.IllegalChar, formatString.getToken().getLine(),
                         null, 0).toString());
             }
             int rightNum = 0;
@@ -481,12 +476,9 @@ public class Visitor {
             if (node.getChild(-2) instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else {
-            throw new RuntimeException();
         }
     }
 
@@ -525,8 +517,7 @@ public class Visitor {
         visitLval(first);
         if (curTableEntry == null) {
             return;
-        }
-        if (curTableEntry.isConst()) {
+        } else if (curTableEntry.isConst()) {
             errors.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
                     null, 0).toString());
         }
@@ -553,69 +544,67 @@ public class Visitor {
                     .getLine(), null, 0).toString());
             curInt = 0;
             curTableEntry = null;
-        } else {
-            int length = node.getChildrenSize();
-            TableEntry tableEntry = curSymbolTable.getEntry(ident.getToken().getValue());
-            switch (length) {
-                case 1:
-                    if (isConstant) {
-                        curInt = tableEntry.getVarValue();
-                    }
-                    curTableEntry = tableEntry;
-                    break;
+            return;
+        }
+        int length = node.getChildrenSize();
+        TableEntry tableEntry = curSymbolTable.getEntry(ident.getToken().getValue());
+        switch (length) {
+            case 1:
+                if (isConstant) {
+                    curInt = tableEntry.getVarValue();
+                }
+                curTableEntry = tableEntry;
+                break;
 
-                case 4:
-                case 7:
-                    ASTNode exp1 = node.getChild(2);
-                    visitExp(exp1);
+            case 4:
+            case 7:
+                ASTNode exp1 = node.getChild(2);
+                visitExp(exp1);
 
-                    int v1;
+                int v1;
 
-                    if (node.getChild(3) instanceof ErrorNode errorNode) {
-                        errors.add(errorNode.toString());
-                    }
+                if (node.getChild(3) instanceof ErrorNode errorNode) {
+                    errors.add(errorNode.toString());
+                }
 
-                    TableEntry referencedTableEntry;
-                    // 计算实际类型
-                    // 若原符号表中为a[2][3]，则可以引用a[0]但实际上a[0]的actualType为array1 ??? 不太懂
-                    if (length == 4) {
-                        if (tableEntry.getTableEntryType() == TableEntryType.Array1 ||
-                                tableEntry.getTableEntryType() == TableEntryType.ConstArray1) {
-                            // 实际传进去的是Var
-                            referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Var, curInt);
-
-                            if (isConstant) {
-                                curInt = referencedTableEntry.getValueFromReferencedArray1(curInt);
-                                curTableEntry = null;
-                            } else {
-                                curTableEntry = referencedTableEntry;
-                            }
-                        } else {
-                            // 实际传进去的是Array1
-                            referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Array1, curInt);
-                            curTableEntry = referencedTableEntry;
-                        }
-                    } else {
-                        referencedTableEntry = new TableEntry(tableEntry,
-                                TableEntryType.Var, curInt, 0);
-                        v1 = curInt;
-                        visitExp(node.getChild(5));
-                        int v2 = curInt;
-
-                        if (node.getChild(6) instanceof ErrorNode errorNode) {
-                            errors.add(errorNode.toString());
-                        }
+                TableEntry referencedTableEntry;
+                // 计算实际类型
+                // 若原符号表中为a[2][3]，则可以引用a[0]但实际上a[0]的actualType为array1 ??? 不太懂
+                if (length == 4) {
+                    if (tableEntry.getTableEntryType() == TableEntryType.Array1 ||
+                            tableEntry.getTableEntryType() == TableEntryType.ConstArray1) {
+                        // 实际传进去的是Var
+                        referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Var, curInt);
 
                         if (isConstant) {
-                            curInt = referencedTableEntry.getValueFromReferencedArray2(v1, v2);
+                            curInt = referencedTableEntry.getValueFromReferencedArray1(curInt);
                             curTableEntry = null;
                         } else {
                             curTableEntry = referencedTableEntry;
                         }
+                    } else {
+                        // 实际传进去的是Array1
+                        referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Array1, curInt);
+                        curTableEntry = referencedTableEntry;
                     }
-            }
+                } else {
+                    referencedTableEntry = new TableEntry(tableEntry,
+                            TableEntryType.Var, curInt, 0);
+                    v1 = curInt;
+                    visitExp(node.getChild(5));
+                    int v2 = curInt;
 
+                    if (node.getChild(6) instanceof ErrorNode errorNode) {
+                        errors.add(errorNode.toString());
+                    }
 
+                    if (isConstant) {
+                        curInt = referencedTableEntry.getValueFromReferencedArray2(v1, v2);
+                        curTableEntry = null;
+                    } else {
+                        curTableEntry = referencedTableEntry;
+                    }
+                }
         }
     }
 
