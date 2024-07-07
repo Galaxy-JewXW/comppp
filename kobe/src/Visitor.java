@@ -1,4 +1,5 @@
 import EntryType.*;
+import Lexer.Token;
 import Parser.*;
 
 import java.io.BufferedWriter;
@@ -86,7 +87,7 @@ public class Visitor {
         curDimensions.clear();
 
         for (int i = 1; i < length - 2 && node.getChild(i).getToken().
-                getType() == Lexer.Token.Type.LBRACK; i += 3) {
+                getType() == Token.Type.LBRACK; i += 3) {
             isConstant = true;
             visitConstExp(node.getChild(i + 1));
             isConstant = false;
@@ -191,7 +192,7 @@ public class Visitor {
         int length = node.getChildrenSize();
         curDimensions.clear();
         for (int i = 1; i < length - 2 && node.getChild(i).getToken()
-                .getType() == Lexer.Token.Type.LBRACK; i += 3) {
+                .getType() == Token.Type.LBRACK; i += 3) {
             isConstant = true;
             visitConstExp(node.getChild(i + 1));
             isConstant = false;
@@ -252,11 +253,11 @@ public class Visitor {
         SymbolTable funcSymbolTable = new SymbolTable(curSymbolTable, false);
         curSymbolTable.addChildTable(funcSymbolTable);
 
-        if (funcType.getToken().getType().equals(Lexer.Token.Type.VOIDTK)) {
+        if (funcType.getToken().getType().equals(Token.Type.VOIDTK)) {
             FunctionVoid functionVoid = new FunctionVoid();
             funcEntry = new TableEntry(ident, functionVoid);
             curFuncType = FuncType.VoidFunc;
-        } else if (funcType.getToken().getType().equals(Lexer.Token.Type.INTTK)) {
+        } else if (funcType.getToken().getType().equals(Token.Type.INTTK)) {
             FunctionInt functionInt = new FunctionInt();
             funcEntry = new TableEntry(ident, functionInt);
             curFuncType = FuncType.IntFunc;
@@ -374,81 +375,54 @@ public class Visitor {
         }
     }
 
-    // Stmt -> LVal '=' Exp ';' | [Exp] ';' | Block // h i
-    //    | 'if' '(' Cond ')' Stmt [ 'else' Stmt ] // j
-    //    | 'for' '('[ForStmt] ';' [Cond] ';' [ForStmt] ')' Stmt
-    //    | 'break' ';' | 'continue' ';' // i m
-    //    | 'return' [Exp] ';' // f i
-    //    | LVal '=' 'getint''('')'';' // h i j
-    //    | 'printf''('FormatString{,Exp}')'';' // i j l
+    // 语句 Stmt -> LVal '=' Exp ';' | [Exp] ';' | Block // h i
+    // | 'if' '(' Cond ')' Stmt [ 'else' Stmt ] // j
+    // | 'for' '('[ForStmt] ';' [Cond] ';' [ForStmt] ')' Stmt
+    // | 'break' ';' | 'continue' ';' // i m
+    // | 'return' [Exp] ';' // f i
+    // | LVal '=' 'getint''('')'';' // h i j
+    // | 'printf''('FormatString{,Exp}')'';' // i j l
     public void visitStmt(ASTNode node, boolean inFuncBlock) {
         ASTNode first = node.getChild(0);
         ASTNode last = node.getChild(-1);
-        if (debug) {
-            System.out.println("Visitor Enter Stmt");
-            System.out.println("node is " + node.getGrammarSymbol());
-            if (first.getGrammarSymbol() != null) {
-                System.out.println("first node is " + first.getGrammarSymbol());
-            }
-            else {
-                System.out.println("first node is " + first.getToken().getType());
-            }
-        }
 
-        if (Objects.equals(first.getGrammarSymbol(), GrammarSymbol.LVal)) {
-            if (debug) {
-                System.out.println("Visitor From Stmt Enter LVal Branch");
-            }
+        if (first.getGrammarSymbol() == GrammarSymbol.LVal) {
             // Stmt -> LVal '=' Exp ';'
             // Stmt -> LVal '=' 'getint''('')'';'
             visitLval(first);
-            if (curTableEntry == null) return; // 名字未定义
+            if (curTableEntry == null)
+                return;
+
             if (curTableEntry.isConst()) {
-                // h ConstantAssign
-                // LineNumber: LVal -> Ident {'[' Exp ']'}
                 errors.add(new ErrorNode(ErrorType.ConstAssign, first.getChild(0).getToken().getLine(),
                         null, 0).toString());
             }
-            if (Objects.equals(node.getChild(2).getGrammarSymbol(), GrammarSymbol.Exp)) {
-                // LVal '=' Exp ';'
-                visitExp(node.getChild(-2));
-            } else { // LVal '=' 'getint''('')'';'
-                // j : RPARENTMissing
-                if (node.getChild(4) instanceof ErrorNode errorNode) {
-                    errors.add(errorNode.toString());
-                }
-            }
 
-            // i: SEMICNMissing
+            if (node.getChild(2).getGrammarSymbol() == GrammarSymbol.Exp) {
+                visitExp(node.getChild(-2));
+            } else if (node.getChild(4) instanceof ErrorNode errorNode) {
+                errors.add(errorNode.toString());
+            }
+            
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else if (Objects.equals(first.getGrammarSymbol(), GrammarSymbol.Block)) {
-            if (debug) {
-                System.out.println("Visitor From Stmt Enter Block");
-            }
-            // Stmt -> Block
+        } else if (first.getGrammarSymbol() == GrammarSymbol.Block) {
             curSymbolTable = new SymbolTable(curSymbolTable, false);
             createSTableBeforeBlock = true;
             visitBlock(first, inFuncBlock);
             curSymbolTable = curSymbolTable.getParent();
-        } else if (Objects.equals(first.getGrammarSymbol(), GrammarSymbol.Exp)
+        } else if (first.getGrammarSymbol() == GrammarSymbol.Exp
                 || node.getChildrenSize() == 1) {
-            if (debug) {
-                System.out.println("Visitor From Stmt Enter Exp Branch");
-            }
             // Stmt -> [Exp] ';'
-            if (Objects.equals(first.getGrammarSymbol(), GrammarSymbol.Exp)) {
+            if (first.getGrammarSymbol() == GrammarSymbol.Exp) {
                 visitExp(first);
             }
 
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else if (first.getToken().getType().equals(Lexer.Token.Type.IFTK)) {
-            if (debug) {
-                System.out.println("Visitor From Stmt Enter If Branch");
-            }
+        } else if (first.getToken().getType() == Token.Type.IFTK) {
             // Stmt -> 'if' '(' Cond ')' Stmt ['else' Stmt]
             visitCond(node.getChild(2));
 
@@ -460,33 +434,22 @@ public class Visitor {
             if (node.getChildrenSize() > 5) {
                 visitStmt(node.getChild(6), inFuncBlock);
             }
-        } else if (first.getToken().getType().equals(Lexer.Token.Type.FORTK)) {
-            if (debug) {
-                System.out.println("Visitor From Stmt Enter For Branch");
-            }
-            // Stmt -> 'for' '('[ForStmt] ';' [Cond] ';' [ForStmt] ')' Stmt
+        } else if (first.getToken().getType() == Token.Type.FORTK) {
             forLevel++;
             for (int i = 2; i < node.getChildrenSize(); i++) {
                 if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.ForStmt)) {
                     visitForStmt(node.getChild(i));
-                }
-                else if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.Cond)) {
+                } else if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.Cond)) {
                     visitCond(node.getChild(i));
-                }
-                else if (node.getChild(i) instanceof ErrorNode errorNode) {
+                } else if (node.getChild(i) instanceof ErrorNode errorNode) {
                     errors.add(errorNode.toString());
-                }
-                else if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.Stmt)) {
+                } else if (Objects.equals(node.getChild(i).getGrammarSymbol(), GrammarSymbol.Stmt)) {
                     visitStmt(node.getChild(i), inFuncBlock);
                 }
             }
             forLevel--;
-        } else if (first.getToken().getType().equals(Lexer.Token.Type.BREAKTK) ||
-                first.getToken().getType().equals(Lexer.Token.Type.CONTINUETK)) {
-            if (debug) {
-                System.out.println("Visitor From Stmt Enter BreakContinue Branch");
-            }
-            // Stmt -> 'break' ';' | 'continue' ';' // i m
+        } else if (first.getToken().getType() == Token.Type.BREAKTK ||
+                first.getToken().getType() == Token.Type.CONTINUETK) {
             if (forLevel == 0) {
                 errors.add(new ErrorNode(ErrorType.BreakContinueNotInLoop,
                         first.getToken().getLine(), null, 0)
@@ -495,36 +458,24 @@ public class Visitor {
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else if (first.getToken().getType().equals(Lexer.Token.Type.RETURNTK)) {
-            if (debug) {
-                System.out.println("Visitor From Stmt Enter Return Branch");
-            }
-            // Stmt -> 'return' [Exp] ';' // f i
+        } else if (first.getToken().getType()== Token.Type.RETURNTK) {
             receiveReturn = inFuncBlock;
-            // 无返回值的函数存在不匹配的return
             if (curFuncType == FuncType.VoidFunc &&
-                    Objects.equals(node.getChild(1).getGrammarSymbol(), GrammarSymbol.Exp)) {
+                    node.getChild(1).getGrammarSymbol() == GrammarSymbol.Exp) {
                 errors.add(new ErrorNode(ErrorType.ReturnTypeError, first.getToken().getLine(),
                         null, 0).toString());
             }
 
-            if (Objects.equals(node.getChild(1).getGrammarSymbol(), GrammarSymbol.Exp)) {
+            if (node.getChild(1).getGrammarSymbol() == GrammarSymbol.Exp) {
                 visitExp(node.getChild(1));
             }
 
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else if (first.getToken().getType().equals(Lexer.Token.Type.PRINTFTK)) {
-            if (debug) {
-                System.out.println("Visitor From Stmt Enter Printf Branch");
-            }
-            // Stmt -> 'printf''('FormatString{,Exp}')'';' // i j l
+        } else if (first.getToken().getType().equals(Token.Type.PRINTFTK)) {
             ASTNode formatStr = node.getChild(2);
             int count = checkFormatString(formatStr);
-            if (debug) {
-                System.out.println("Stmt printf count is " + count);
-            }
             if (count < 0) {
                 errors.add(new ErrorNode(ErrorType.IllegalChar, formatStr.getToken().getLine(),
                         null, 0).toString());
@@ -540,39 +491,28 @@ public class Visitor {
                         .toString());
             }
 
-            // '('
             if (node.getChild(-2) instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
 
-            // ';'
             if (last instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
         } else {
-            throw new RuntimeException("Stmt No Match Condition!!!!");
+            throw new RuntimeException();
         }
     }
 
-    /**
-     * 对格式字符串进行检查
-     // * @param format 格式字符串
-     // * @return -1 if 格式字符串格式错误，>= 0 if 格式字符串合法，返回 "%d" 的个数
-     */
     private int checkFormatString(ASTNode node) {
         String format = node.getToken().getValue();
-        if (debug) {
-            System.out.println("checkFormatString format is " + format);
-        }
         int l = format.length();
         int count = 0;
         for (int i = 1; i < l - 1; i++) {
             char c = format.charAt(i);
             if (c != 32 && c != 33 && !(c >= 40 && c <= 126)) {
-                // (space) / ! / ( == 40 / ` == 126 40-126之间是所有正常字符
                 if (c == '%') {
                     if (i < l - 1 && format.charAt(i + 1) == 'd') {
-                        count = count + 1;
+                        count++;
                         continue;
                     } else {
                         return -1;
@@ -581,7 +521,6 @@ public class Visitor {
                 return -1;
             }
             if (c == 92 && (i >= l - 1 || format.charAt(i + 1) != 'n')) {
-                // \
                 return -1;
             }
         }
@@ -783,14 +722,14 @@ public class Visitor {
             visitPrimaryExp(first);
         } else if (Objects.equals(first.getGrammarSymbol(), GrammarSymbol.UnaryOp)) {
             // UnaryOp -> '+' | '−' | '!'
-            int op = first.getChild(0).getToken().getType().equals(Lexer.Token.Type.PLUS) ? 1 :
-                    first.getChild(0).getToken().getType().equals(Lexer.Token.Type.MINU) ? -1 : 2;
+            int op = first.getChild(0).getToken().getType().equals(Token.Type.PLUS) ? 1 :
+                    first.getChild(0).getToken().getType().equals(Token.Type.MINU) ? -1 : 2;
             visitUnaryExp(node.getChild(1));
             if (op == 1 || op == -1) {
                 curInt *= op;
             }
         }
-        else if (Objects.equals(first.getToken().getType(), Lexer.Token.Type.IDENFR)) {
+        else if (Objects.equals(first.getToken().getType(), Token.Type.IDENFR)) {
             if (!curSymbolTable.nameExisted(first.getToken().getValue())) { // Undefined Ident
                 errors.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
                         .getLine(), null, 0).toString());
@@ -891,7 +830,7 @@ public class Visitor {
             int leftNum = curInt;
             visitMulExp(node.getChild(2));
             if (isConstant) { // 只有在为常量时需要做简化
-                if (node.getChild(1).getToken().getType() == Lexer.Token.Type.PLUS) {
+                if (node.getChild(1).getToken().getType() == Token.Type.PLUS) {
                     curInt = leftNum + curInt;
                 } else {
                     curInt = leftNum - curInt;
@@ -914,9 +853,9 @@ public class Visitor {
 
             visitUnaryExp(node.getChild(2));
             if (isConstant) { // 常量的话符号表项就返回null
-                if (node.getChild(1).getToken().getType() == Lexer.Token.Type.MULT) {
+                if (node.getChild(1).getToken().getType() == Token.Type.MULT) {
                     curInt = leftNum * curInt;
-                } else if (node.getChild(1).getToken().getType() == Lexer.Token.Type.DIV) {
+                } else if (node.getChild(1).getToken().getType() == Token.Type.DIV) {
                     curInt = leftNum / curInt;
                 } else {
                     curInt = leftNum % curInt;
