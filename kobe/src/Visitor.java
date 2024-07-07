@@ -226,7 +226,6 @@ public class Visitor {
     }
 
     // 变量初值 InitVal -> Exp | '{' [ InitVal { ',' InitVal } ] '}'
-    // 注意这里和ConstInitVal的区别: 这里不一定能算出来初值，所以不需要在这里进行赋值
     public void visitInitVal(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitExp(node.getChild(0));
@@ -237,68 +236,58 @@ public class Visitor {
         }
     }
 
-    // FuncDef -> EntryType.FuncType Ident '(' [FuncFParams] ')' Block // b g j
+    // 函数定义 FuncDef -> FuncType Ident '(' [FuncFParams] ')' Block
     // b -> IdentRedefined
     // g -> RETURNMissing
     // j -> RPARENTMissing
     public void visitFuncDef(ASTNode node) {
-        // EntryType.FuncType -- Process Directly
         ASTNode funcType = node.getChild(0).getChild(0);
-        // Ident
         ASTNode ident = node.getChild(1);
-        // New Entry
         TableEntry funcEntry = new TableEntry();
-        if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
+        if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
-        } else {
-            // Create a new func symbol table
-            SymbolTable funcSymbolTable = new SymbolTable(curSymbolTable, false);
-            curSymbolTable.addChildTable(funcSymbolTable);
-
-            // Discuss the type of function
-            if (funcType.getToken().getType().equals(Lexer.Token.Type.VOIDTK)) {
-                FunctionVoid functionVoid = new FunctionVoid();
-                funcEntry = new TableEntry(ident, functionVoid);
-                curFuncType = FuncType.VoidFunc;
-            } else if (funcType.getToken().getType().equals(Lexer.Token.Type.INTTK)) {
-                FunctionInt functionInt = new FunctionInt();
-                funcEntry = new TableEntry(ident, functionInt);
-                curFuncType = FuncType.IntFunc;
-            }
-            curSymbolTable.addEntry(ident.getToken().getValue(), funcEntry);
-            // change curSymbolTable
-            curSymbolTable = funcSymbolTable;
-
-            // FuncFParams
-            if (Objects.equals(node.getChild(3).getGrammarSymbol(), GrammarSymbol.FuncFParams)) {
-                visitFuncFParams(node.getChild(3), funcEntry);
-            }
-
-            // j mistake
-            if (node.getChild(-2) instanceof ErrorNode errorNode) {
-                errors.add(errorNode.toString());
-            }
-
-            // Bool change
-            receiveReturn = false;
-            createSTableBeforeBlock = true;
-
-            // Block
-            visitBlock(node.getChild(-1), true);
-
-            if (curFuncType == FuncType.IntFunc && (!receiveReturn)) {
-                errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0).toString());
-            }
-
-            // recover curSymbolTable
-            curSymbolTable = curSymbolTable.getParent();
-            assert curSymbolTable.isRoot();
-
-            receiveReturn = false;
-            curFuncType = FuncType.NotFunc;
-            createSTableBeforeBlock = false;
+            return;
         }
+        SymbolTable funcSymbolTable = new SymbolTable(curSymbolTable, false);
+        curSymbolTable.addChildTable(funcSymbolTable);
+
+        if (funcType.getToken().getType().equals(Lexer.Token.Type.VOIDTK)) {
+            FunctionVoid functionVoid = new FunctionVoid();
+            funcEntry = new TableEntry(ident, functionVoid);
+            curFuncType = FuncType.VoidFunc;
+        } else if (funcType.getToken().getType().equals(Lexer.Token.Type.INTTK)) {
+            FunctionInt functionInt = new FunctionInt();
+            funcEntry = new TableEntry(ident, functionInt);
+            curFuncType = FuncType.IntFunc;
+        }
+        curSymbolTable.addEntry(ident.getToken().getValue(), funcEntry);
+        curSymbolTable = funcSymbolTable;
+
+        if (node.getChild(3).getGrammarSymbol() == GrammarSymbol.FuncFParams) {
+            visitFuncFParams(node.getChild(3), funcEntry);
+        }
+
+        if (node.getChild(-2) instanceof ErrorNode errorNode) {
+            errors.add(errorNode.toString());
+        }
+
+        receiveReturn = false;
+        createSTableBeforeBlock = true;
+
+        visitBlock(node.getChild(-1), true);
+
+        if (curFuncType == FuncType.IntFunc && !receiveReturn) {
+            errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLineNum, null, 0).toString());
+        }
+
+        curSymbolTable = curSymbolTable.getParent();
+        assert curSymbolTable.isRoot();
+
+        receiveReturn = false;
+        curFuncType = FuncType.NotFunc;
+        createSTableBeforeBlock = false;
+
     }
 
     // MainFuncDef -> 'int' 'main' '(' ')' Block // g j
