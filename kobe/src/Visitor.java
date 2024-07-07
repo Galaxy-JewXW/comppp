@@ -30,22 +30,27 @@ public class Visitor {
         this.debug = debug;
     }
 
-    // CompUnit -> {Decl} {FuncDef} MainFuncDef
+    // 编译单元 CompUnit -> {Decl} {FuncDef} MainFuncDef
     public void visitCompUnit() {
         for (ASTNode child : root.getChildren()) {
-            if (child.getGrammarSymbol() == GrammarSymbol.Decl) {
-                visitDecl(child);
-            } else if (child.getGrammarSymbol() == GrammarSymbol.FuncDef) {
-                visitFuncDef(child);
-            } else if (child.getGrammarSymbol() == GrammarSymbol.MainFuncDef) {
-                visitMainFuncDef(child);
+            switch (child.getGrammarSymbol()) {
+                case Decl:
+                    visitDecl(child);
+                    break;
+                case FuncDef:
+                    visitFuncDef(child);
+                    break;
+                case MainFuncDef:
+                    visitMainFuncDef(child);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
-    // Decl -> ConstDecl | VarDecl
+    // 声明 Decl -> ConstDecl | VarDecl
     public void visitDecl(ASTNode node) {
-        // Actually the size of children is 1
         for (ASTNode child : node.getChildren()) {
             if (child.getGrammarSymbol() == GrammarSymbol.ConstDecl) {
                 visitConstDecl(child);
@@ -58,10 +63,8 @@ public class Visitor {
     // ConstDecl -> 'const' BType ConstDef { ',' ConstDef } ';'
     // i -> Parser.ErrorType: MissingSEMICN
     public void visitConstDecl(ASTNode node) {
-        int i = 2;
-        while (i < node.getChildren().size() - 1) {
-            visitConstDef(node.getChildren().get(i));
-            i += 2;
+        for (int i = 2; i < node.getChildrenSize() - 1; i += 2) {
+            visitConstDef(node.getChild(i));
         }
         ASTNode lastChild = node.getChildren().get(node.getChildren().size() - 1);
         if (lastChild instanceof ErrorNode errorNode) {
@@ -78,47 +81,44 @@ public class Visitor {
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
-        } else {
-            int i = 1;
-            int length = node.getChildren().size();
-            curDimensions.clear();
-            while (i < length - 2 &&
-                    node.getChild(i).getToken().getType().equals(Lexer.Token.Type.LBRACK)) {
-
-                if (debug) {
-                    System.out.println("Visitor Enter ConstDef");
-                }
-                isConstant = true;
-                visitConstExp(node.getChild(i + 1));
-                isConstant = false;
-                curDimensions.add(curInt);
-
-                if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
-                    errors.add(errorNode.toString());
-                }
-                i += 3;
-            }
-
-            // ConstInitVal
-            visitConstInitVal(node.getChild(-1), curDimensions.size());
-
-            switch (curConstValue.getType()) {
-                case "int":
-                    TableEntry varEntry = new TableEntry(ident, curConstValue.getVar(), false);
-                    curSymbolTable.addEntry(ident.getToken().getValue(), varEntry);
-                    break;
-                case "Array1":
-                    TableEntry array1Entry = new TableEntry(ident, curConstValue.getArray1(), false);
-                    curSymbolTable.addEntry(ident.getToken().getValue(), array1Entry);
-                    break;
-                case "Array2":
-                    TableEntry array2Entry = new TableEntry(ident, curConstValue.getArray2(), false);
-                    curSymbolTable.addEntry(ident.getToken().getValue(), array2Entry);
-                    break;
-                default:
-                    break;
-            }
+            return;
         }
+        int i = 1;
+        int length = node.getChildren().size();
+        curDimensions.clear();
+        while (i < length - 2 && node.getChild(i).getToken().
+                getType().equals(Lexer.Token.Type.LBRACK)) {
+            isConstant = true;
+            visitConstExp(node.getChild(i + 1));
+            isConstant = false;
+            curDimensions.add(curInt);
+
+            if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
+                errors.add(errorNode.toString());
+            }
+            i += 3;
+        }
+
+        // ConstInitVal
+        visitConstInitVal(node.getChild(-1), curDimensions.size());
+
+        switch (curConstValue.getType()) {
+            case "int":
+                TableEntry varEntry = new TableEntry(ident, curConstValue.getVar(), false);
+                curSymbolTable.addEntry(ident.getToken().getValue(), varEntry);
+                break;
+            case "Array1":
+                TableEntry array1Entry = new TableEntry(ident, curConstValue.getArray1(), false);
+                curSymbolTable.addEntry(ident.getToken().getValue(), array1Entry);
+                break;
+            case "Array2":
+                TableEntry array2Entry = new TableEntry(ident, curConstValue.getArray2(), false);
+                curSymbolTable.addEntry(ident.getToken().getValue(), array2Entry);
+                break;
+            default:
+                break;
+        }
+
 
 
     }
