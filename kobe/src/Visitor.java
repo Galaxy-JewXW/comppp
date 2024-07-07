@@ -66,7 +66,7 @@ public class Visitor {
         for (int i = 2; i < node.getChildrenSize() - 1; i += 2) {
             visitConstDef(node.getChild(i));
         }
-        ASTNode lastChild = node.getChildren().get(node.getChildren().size() - 1);
+        ASTNode lastChild = node.getChildren().get(node.getChildrenSize() - 1);
         if (lastChild instanceof ErrorNode errorNode) {
             errors.add(errorNode.toString());
         }
@@ -77,21 +77,20 @@ public class Visitor {
     // k -> RBRACKMissing
     public void visitConstDef(ASTNode node) {
         ASTNode ident = node.getChild(0);
-        if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
+        if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
             return;
         }
-        int length = node.getChildren().size();
+        int length = node.getChildrenSize();
         curDimensions.clear();
 
         for (int i = 1; i < length - 2 && node.getChild(i).getToken().
-                getType().equals(Lexer.Token.Type.LBRACK); i += 3) {
+                getType() == Lexer.Token.Type.LBRACK; i += 3) {
             isConstant = true;
             visitConstExp(node.getChild(i + 1));
             isConstant = false;
             curDimensions.add(curInt);
-
             if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
@@ -119,7 +118,7 @@ public class Visitor {
 
     }
 
-    // ConstInitVal -> ConstExp | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
+    // 常量初值 ConstInitVal -> ConstExp | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
     public void visitConstInitVal(ASTNode node, int dimension) {
         switch (dimension) {
             case 0:
@@ -131,7 +130,15 @@ public class Visitor {
                 curConstValue = new ConstValue("int", constVar);
                 break;
             case 1:
-                if (!isMultiArrayInit) {
+                if (isMultiArrayInit) {
+                    int d1 = (node.getChildrenSize() + 1) / 2;
+                    for (int i = 1; i < d1; i += 2) {
+                        isConstant = true;
+                        visitConstExp(node.getChild(i).getChild(0));
+                        isConstant = false;
+                        curConstValue.addValues(curInt);
+                    }
+                } else {
                     int d1 = curDimensions.get(0);
                     ArrayList<Integer> values = new ArrayList<>();
                     for (int i = 1, p = 0; p < d1; i += 2, p++) {
@@ -141,14 +148,6 @@ public class Visitor {
                         values.add(curInt);
                     }
                     curConstValue = new ConstValue("Array1", new ConstArray1(d1, values));
-                } else {
-                    int d1 = (node.getChildrenSize() + 1) / 2;
-                    for (int i = 1; i < d1; i += 2) {
-                        isConstant = true;
-                        visitConstExp(node.getChild(i).getChild(0));
-                        isConstant = false;
-                        curConstValue.addValues(curInt);
-                    }
                 }
                 break;
             case 2:
@@ -167,22 +166,19 @@ public class Visitor {
         }
     }
 
-    // VarDecl → BType VarDef { ',' VarDef } ';' // i
+    // 变量声明 VarDecl -> BType VarDef { ',' VarDef } ';' // i
     // i -> SEMICNMissing
     public void visitVarDecl(ASTNode node) {
-        int i = 1;
-        while (i < node.getChildren().size() - 1) {
+        for (int i = 1; i < node.getChildrenSize() - 1; i += 2) {
             visitVarDef(node.getChildren().get(i));
-            i += 2;
         }
-        ASTNode lastChild = node.getChildren().get(node.getChildren().size() - 1);
+        ASTNode lastChild = node.getChildren().get(node.getChildrenSize() - 1);
         if (lastChild instanceof ErrorNode errorNode) {
             errors.add(errorNode.toString());
         }
     }
 
-    // VarDef → Ident { '[' ConstExp ']' } // b
-    //    | Ident { '[' ConstExp ']' } '=' InitVal // k
+    // 变量定义 VarDef -> Ident { '[' ConstExp ']' } | Ident { '[' ConstExp ']' } '=' InitVal
     // b -> IdentRedefined
     // k -> RBRACKMissing
     public void visitVarDef(ASTNode node) {
@@ -190,40 +186,37 @@ public class Visitor {
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
                     .getLine(), null, 0).toString());
-        } else {
-            int i = 1;
-            int length = node.getChildren().size();
-            curDimensions.clear();
-            while (i < length - 2 &&
-                    node.getChild(i).getToken().getType().equals(Lexer.Token.Type.LBRACK)) {
-
-                isConstant = true;
-                visitConstExp(node.getChild(i + 1));
-                isConstant = false;
-                curDimensions.add(curInt);
-
-                if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
-                    errors.add(errorNode.toString());
-                }
-                i += 3;
-            }
-
-            if (Objects.equals(node.getChild(-1).getGrammarSymbol(), GrammarSymbol.InitVal)) {
-                visitInitVal(node.getChild(-1));
-            }
-
-            if (curDimensions.isEmpty()) { // VarDef -> Ident
-                TableEntry varEntry = new TableEntry(ident, new Var(), false);
-                curSymbolTable.addEntry(ident.getToken().getValue(), varEntry);
-            } else if (curDimensions.size() == 1){ // VarDef -> Ident [] '=' InitVal
-                TableEntry array1Entry = new TableEntry(ident, new Array1(curDimensions.get(0)), false);
-                curSymbolTable.addEntry(ident.getToken().getValue(), array1Entry);
-            } else if (curDimensions.size() == 2) {
-                TableEntry array2Entry = new TableEntry(ident, new Array2(curDimensions.get(0),
-                        curDimensions.get(1)), false);
-                curSymbolTable.addEntry(ident.getToken().getValue(), array2Entry);
+            return;
+        }
+        int length = node.getChildrenSize();
+        curDimensions.clear();
+        for (int i = 1; i < length - 2 && node.getChild(i).getToken()
+                .getType() == Lexer.Token.Type.LBRACK; i += 3) {
+            isConstant = true;
+            visitConstExp(node.getChild(i + 1));
+            isConstant = false;
+            curDimensions.add(curInt);
+            if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
+                errors.add(errorNode.toString());
             }
         }
+
+        if (node.getChild(-1).getGrammarSymbol() == GrammarSymbol.InitVal) {
+            visitInitVal(node.getChild(-1));
+        }
+
+        if (curDimensions.isEmpty()) { // VarDef -> Ident
+            TableEntry varEntry = new TableEntry(ident, new Var(), false);
+            curSymbolTable.addEntry(ident.getToken().getValue(), varEntry);
+        } else if (curDimensions.size() == 1){ // VarDef -> Ident [] '=' InitVal
+            TableEntry array1Entry = new TableEntry(ident, new Array1(curDimensions.get(0)), false);
+            curSymbolTable.addEntry(ident.getToken().getValue(), array1Entry);
+        } else if (curDimensions.size() == 2) {
+            TableEntry array2Entry = new TableEntry(ident, new Array2(curDimensions.get(0),
+                    curDimensions.get(1)), false);
+            curSymbolTable.addEntry(ident.getToken().getValue(), array2Entry);
+        }
+
     }
 
     // InitVal -> Exp | '{' [ InitVal { ',' InitVal } ] '}'
@@ -702,7 +695,7 @@ public class Visitor {
         }
     }
 
-    // LVal → Ident {'[' Exp ']'} // c k
+    // LVal -> Ident {'[' Exp ']'} // c k
     // c -> IdentUndefined
     // k -> RBRACKMissing
     // Lval 一定是之前已经定义过的变量
@@ -1005,7 +998,7 @@ public class Visitor {
         }
     }
 
-    // RelExp → AddExp | RelExp ('<' | '>' | '<=' | '>=') AddExp
+    // RelExp -> AddExp | RelExp ('<' | '>' | '<=' | '>=') AddExp
     public void visitRelExp(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitAddExp(node.getChild(0));
