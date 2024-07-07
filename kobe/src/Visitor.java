@@ -61,7 +61,7 @@ public class Visitor {
     }
 
     // ConstDecl -> 'const' BType ConstDef { ',' ConstDef } ';'
-    // i -> Parser.ErrorType: MissingSEMICN
+    // i -> MissingSEMICN
     public void visitConstDecl(ASTNode node) {
         for (int i = 2; i < node.getChildrenSize() - 1; i += 2) {
             visitConstDef(node.getChild(i));
@@ -73,8 +73,8 @@ public class Visitor {
     }
 
     // ConstDef -> Ident { '[' ConstExp ']' } '=' ConstInitVal
-    // b -> Parser.ErrorType: IdentRedefined
-    // k -> Parser.ErrorType: RBRACKMissing
+    // b -> IdentRedefined
+    // k -> RBRACKMissing
     public void visitConstDef(ASTNode node) {
         // Ident
         ASTNode ident = node.getChild(0);
@@ -83,11 +83,11 @@ public class Visitor {
                     .getLine(), null, 0).toString());
             return;
         }
-        int i = 1;
         int length = node.getChildren().size();
         curDimensions.clear();
-        while (i < length - 2 && node.getChild(i).getToken().
-                getType().equals(Lexer.Token.Type.LBRACK)) {
+
+        for (int i = 1; i < length - 2 && node.getChild(i).getToken().
+                getType().equals(Lexer.Token.Type.LBRACK); i += 3) {
             isConstant = true;
             visitConstExp(node.getChild(i + 1));
             isConstant = false;
@@ -96,7 +96,6 @@ public class Visitor {
             if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-            i += 3;
         }
 
         // ConstInitVal
@@ -188,7 +187,7 @@ public class Visitor {
     }
 
     // VarDecl → BType VarDef { ',' VarDef } ';' // i
-    // i -> Parser.ErrorType: SEMICNMissing
+    // i -> SEMICNMissing
     public void visitVarDecl(ASTNode node) {
         int i = 1;
         while (i < node.getChildren().size() - 1) {
@@ -203,8 +202,8 @@ public class Visitor {
 
     // VarDef → Ident { '[' ConstExp ']' } // b
     //    | Ident { '[' ConstExp ']' } '=' InitVal // k
-    // b -> Parser.ErrorType: IdentRedefined
-    // k -> Parser.ErrorType: RBRACKMissing
+    // b -> IdentRedefined
+    // k -> RBRACKMissing
     public void visitVarDef(ASTNode node) {
         ASTNode ident = node.getChild(0);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 当前符号表中已有同名Ident
@@ -261,9 +260,9 @@ public class Visitor {
     }
 
     // FuncDef -> EntryType.FuncType Ident '(' [FuncFParams] ')' Block // b g j
-    // b -> Parser.ErrorType: IdentRedefined
-    // g -> Parser.ErrorType: RETURNMissing
-    // j -> Parser.ErrorType: RPARENTMissing
+    // b -> IdentRedefined
+    // g -> RETURNMissing
+    // j -> RPARENTMissing
     public void visitFuncDef(ASTNode node) {
         // EntryType.FuncType -- Process Directly
         ASTNode funcType = node.getChild(0).getChild(0);
@@ -325,8 +324,8 @@ public class Visitor {
     }
 
     // MainFuncDef -> 'int' 'main' '(' ')' Block // g j
-    // g -> Parser.ErrorType: ReturnMissing
-    // j -> Parser.ErrorType: RPARENTMissing
+    // g -> ReturnMissing
+    // j -> RPARENTMissing
     public void visitMainFuncDef(ASTNode node) {
         if (debug) {
             System.out.println("Visitor Enter MainFuncDef");
@@ -375,8 +374,8 @@ public class Visitor {
     }
 
     //  FuncFParam -> BType Ident ['[' ']' { '[' ConstExp ']' }]  //   b k
-    // b -> Parser.ErrorType: IdentRedefined
-    // k -> Parser.ErrorType: RBRACKMissing
+    // b -> IdentRedefined
+    // k -> RBRACKMissing
     public TableEntry visitFuncFParam(ASTNode node) {
         ASTNode ident = node.getChild(1);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) { // 保证形参没有重名
@@ -723,8 +722,8 @@ public class Visitor {
     }
 
     // LVal → Ident {'[' Exp ']'} // c k
-    // c -> Parser.ErrorType: IdentUndefined
-    // k -> Parser.ErrorType: RBRACKMissing
+    // c -> IdentUndefined
+    // k -> RBRACKMissing
     // Lval 一定是之前已经定义过的变量
     public void visitLval(ASTNode node) { // 该函数的返回值传回curTableEntry
         ASTNode ident = node.getChild(0);
