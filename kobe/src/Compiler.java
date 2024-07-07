@@ -15,7 +15,7 @@ public class Compiler {
         ASTNode root = parser.parse();
         ASTNode.printAST(root, output);
         Visitor visitor = new Visitor(root);
-        visitor.visitCompUnit();
+        visitor.visit();
         visitor.print(output2);
     }
 }

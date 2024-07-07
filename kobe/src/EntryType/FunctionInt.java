@@ -3,7 +3,7 @@ package EntryType;
 import java.util.ArrayList;
 
 public class FunctionInt {
-    private ArrayList<FuncParam> funcParams;
+    private final ArrayList<FuncParam> funcParams;
 
     public FunctionInt() {
         funcParams = new ArrayList<>();
@@ -21,7 +21,7 @@ public class FunctionInt {
         funcParams.add(array2);
     }
 
-    public int getParamsNum() {
+    public int getParamsSize() {
         return funcParams.size();
     }
 

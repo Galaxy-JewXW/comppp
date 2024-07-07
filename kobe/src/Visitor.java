@@ -12,7 +12,6 @@ public class Visitor {
     private SymbolTable curSymbolTable = new SymbolTable(null, true);
     private final ArrayList<String> errors = new ArrayList<>();
     private final ArrayList<Integer> curDimensions = new ArrayList<>();
-    private ConstValue curConstValue;
     private boolean isConstant = false;
     private int curInt;
     private boolean receiveReturn = false;
@@ -27,8 +26,19 @@ public class Visitor {
         this.funcEndLine = 0;
     }
 
+    public void print(BufferedWriter outputFile) throws IOException {
+        for (String str : errors) {
+            outputFile.write(str + "\n");
+        }
+        outputFile.flush();
+    }
+
+    public void visit() {
+        visitCompUnit();
+    }
+
     // 编译单元 CompUnit -> {Decl} {FuncDef} MainFuncDef
-    public void visitCompUnit() {
+    private void visitCompUnit() {
         for (ASTNode child : root.getChildren()) {
             switch (child.getGrammarSymbol()) {
                 case Decl:
@@ -47,7 +57,7 @@ public class Visitor {
     }
 
     // 声明 Decl -> ConstDecl | VarDecl
-    public void visitDecl(ASTNode node) {
+    private void visitDecl(ASTNode node) {
         for (ASTNode child : node.getChildren()) {
             if (child.getGrammarSymbol() == GrammarSymbol.ConstDecl) {
                 visitConstDecl(child);
@@ -59,7 +69,7 @@ public class Visitor {
 
     // 常量声明 ConstDecl -> 'const' BType ConstDef { ',' ConstDef } ';'
     // i -> MissingSEMICN
-    public void visitConstDecl(ASTNode node) {
+    private void visitConstDecl(ASTNode node) {
         for (int i = 2; i < node.getChildrenSize() - 1; i += 2) {
             visitConstDef(node.getChild(i));
         }
@@ -72,7 +82,7 @@ public class Visitor {
     // 常数定义 ConstDef -> Ident { '[' ConstExp ']' } '=' ConstInitVal
     // b -> IdentRedefined
     // k -> RBRACKMissing
-    public void visitConstDef(ASTNode node) {
+    private void visitConstDef(ASTNode node) {
         ASTNode ident = node.getChild(0);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
@@ -92,19 +102,19 @@ public class Visitor {
                 errors.add(errorNode.toString());
             }
         }
-        visitConstInitVal(node.getChild(-1), curDimensions.size());
-        switch (curConstValue.getType()) {
+        ConstValue value = visitConstInitVal(node.getChild(-1), curDimensions.size());
+        switch (value.getType()) {
             case "int":
                 curSymbolTable.addEntry(ident.getToken().getValue(),
-                        new TableEntry(ident, curConstValue.getVar(), false));
+                        new TableEntry(ident, value.getVar()));
                 break;
             case "Array1":
                 curSymbolTable.addEntry(ident.getToken().getValue(),
-                        new TableEntry(ident, curConstValue.getArray1(), false));
+                        new TableEntry(ident, value.getArray1()));
                 break;
             case "Array2":
                 curSymbolTable.addEntry(ident.getToken().getValue(),
-                        new TableEntry(ident, curConstValue.getArray2(), false));
+                        new TableEntry(ident, value.getArray2()));
                 break;
             default:
                 break;
@@ -112,7 +122,8 @@ public class Visitor {
     }
 
     // 常量初值 ConstInitVal -> ConstExp | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
-    public void visitConstInitVal(ASTNode node, int dimension) {
+    private ConstValue visitConstInitVal(ASTNode node, int dimension) {
+        ConstValue value = null;
         int d1;
         switch (dimension) {
             case 0:
@@ -121,7 +132,7 @@ public class Visitor {
                 isConstant = false;
 
                 ConstVar constVar = new ConstVar(curInt);
-                curConstValue = new ConstValue("int", constVar);
+                value = new ConstValue("int", constVar);
                 break;
             case 1:
                 d1 = curDimensions.get(0);
@@ -132,13 +143,13 @@ public class Visitor {
                     isConstant = false;
                     values.add(curInt);
                 }
-                curConstValue = new ConstValue("Array1", new ConstArray1(d1, values));
+                value = new ConstValue("Array1", new ConstArray1(d1, values));
                 break;
             case 2:
                 d1 = curDimensions.get(0);
                 int d2 = curDimensions.get(1);
                 int p = 0;
-                curConstValue = new ConstValue("Array2", new ConstArray2(d1, d2));
+                value = new ConstValue("Array2", new ConstArray2(d1, d2));
                 for (int i = 1; p < d1; i += 2, p++) {
                     ASTNode temp = node.getChild(i);
                     int d11 = (temp.getChildrenSize() + 1) / 2;
@@ -146,18 +157,19 @@ public class Visitor {
                         isConstant = true;
                         visitConstExp(temp.getChild(j).getChild(0));
                         isConstant = false;
-                        curConstValue.addValues(curInt);
+                        value.addValues(curInt);
                     }
                 }
                 break;
             default:
                 break;
         }
+        return value;
     }
 
     // 变量声明 VarDecl -> BType VarDef { ',' VarDef } ';' // i
     // i -> SEMICNMissing
-    public void visitVarDecl(ASTNode node) {
+    private void visitVarDecl(ASTNode node) {
         for (int i = 1; i < node.getChildrenSize() - 1; i += 2) {
             visitVarDef(node.getChildren().get(i));
         }
@@ -170,7 +182,7 @@ public class Visitor {
     // 变量定义 VarDef -> Ident { '[' ConstExp ']' } | Ident { '[' ConstExp ']' } '=' InitVal
     // b -> IdentRedefined
     // k -> RBRACKMissing
-    public void visitVarDef(ASTNode node) {
+    private void visitVarDef(ASTNode node) {
         ASTNode ident = node.getChild(0);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
@@ -197,16 +209,15 @@ public class Visitor {
         switch (curDimensions.size()) {
             case 0:
                 curSymbolTable.addEntry(ident.getToken().getValue(),
-                        new TableEntry(ident, new Var(), false));
+                        new TableEntry(ident, new Var()));
                 break;
             case 1:
                 curSymbolTable.addEntry(ident.getToken().getValue(),
-                        new TableEntry(ident, new Array1(curDimensions.get(0)), false));
+                        new TableEntry(ident, new Array1(curDimensions.get(0))));
                 break;
             case 2:
                 curSymbolTable.addEntry(ident.getToken().getValue(),
-                        new TableEntry(ident, new Array2(curDimensions.get(0), curDimensions.get(1)),
-                                false));
+                        new TableEntry(ident, new Array2(curDimensions.get(0), curDimensions.get(1))));
                 break;
             default:
                 break;
@@ -215,7 +226,7 @@ public class Visitor {
     }
 
     // 变量初值 InitVal -> Exp | '{' [ InitVal { ',' InitVal } ] '}'
-    public void visitInitVal(ASTNode node) {
+    private void visitInitVal(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitExp(node.getChild(0));
             return;
@@ -229,7 +240,7 @@ public class Visitor {
     // b -> IdentRedefined
     // g -> RETURNMissing
     // j -> RPARENTMissing
-    public void visitFuncDef(ASTNode node) {
+    private void visitFuncDef(ASTNode node) {
         ASTNode funcType = node.getChild(0).getChild(0);
         ASTNode ident = node.getChild(1);
         TableEntry funcEntry = new TableEntry();
@@ -280,7 +291,7 @@ public class Visitor {
     // 主函数定义 MainFuncDef -> 'int' 'main' '(' ')' Block
     // g -> ReturnMissing
     // j -> RPARENTMissing
-    public void visitMainFuncDef(ASTNode node) {
+    private void visitMainFuncDef(ASTNode node) {
         SymbolTable mainSymbolTable = new SymbolTable(curSymbolTable, false);
         curSymbolTable.addChildTable(mainSymbolTable);
         curSymbolTable = mainSymbolTable;
@@ -301,7 +312,7 @@ public class Visitor {
     }
 
     // 函数形参表 FuncFParams -> FuncFParam { ',' FuncFParam }
-    public void visitFuncFParams(ASTNode node, TableEntry funcEntry) {
+    private void visitFuncFParams(ASTNode node, TableEntry funcEntry) {
         for (int i = 0; i < node.getChildrenSize(); i += 2) {
             TableEntry funcFParam = visitFuncFParam(node.getChild(i));
             curSymbolTable.addEntry(funcFParam.getName(), funcFParam);
@@ -312,7 +323,7 @@ public class Visitor {
     // 函数形参 FuncFParam -> BType Ident ['[' ']' { '[' ConstExp ']' }]
     // b -> IdentRedefined
     // k -> RBRACKMissing
-    public TableEntry visitFuncFParam(ASTNode node) {
+    private TableEntry visitFuncFParam(ASTNode node) {
         ASTNode ident = node.getChild(1);
         if (curSymbolTable.containsEntry(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentRedefined, ident.getToken()
@@ -320,14 +331,14 @@ public class Visitor {
         }
 
         switch (node.getChildrenSize()) {
-            case 2:
-                return new TableEntry(ident, new Var(), true);
-            case 4:
+            case 2: // BType Ident
+                return new TableEntry(ident, new Var());
+            case 4: // BType Ident '[' ']'
                 if (node.getChild(3) instanceof ErrorNode errorNode) {
                     errors.add(errorNode.toString());
                 }
-                return new TableEntry(ident, new Array1(), true);
-            case 7:
+                return new TableEntry(ident, new Array1());
+            case 7: // BType Ident '[' ']'  '[' ConstExp ']'
                 visitConstExp(node.getChild(5));
                 if (node.getChild(3) instanceof ErrorNode errorNode) {
                     errors.add(errorNode.toString());
@@ -335,14 +346,14 @@ public class Visitor {
                 if (node.getChild(6) instanceof ErrorNode errorNode) {
                     errors.add(errorNode.toString());
                 }
-                return new TableEntry(ident, new Array2(curInt), true);
+                return new TableEntry(ident, new Array2(curInt));
             default:
                 throw new RuntimeException();
         }
     }
 
     // 语句块 Block -> '{' { BlockItem } '}'
-    public void visitBlock(ASTNode node, boolean inFunc) {
+    private void visitBlock(ASTNode node, boolean inFunc) {
         for (int i = 1; i < node.getChildrenSize() - 1; i++) {
             visitBlockItem(node.getChild(i), inFunc);
         }
@@ -350,7 +361,7 @@ public class Visitor {
     }
 
     // 语句块项 BlockItem -> Decl | Stmt
-    public void visitBlockItem(ASTNode node, boolean inFunc) {
+    private void visitBlockItem(ASTNode node, boolean inFunc) {
         if (node.getChild(0).getGrammarSymbol() == GrammarSymbol.Decl) {
             visitDecl(node.getChild(0));
         } else {
@@ -365,7 +376,7 @@ public class Visitor {
     // | 'return' [Exp] ';' // f i
     // | LVal '=' 'getint''('')'';' // h i j
     // | 'printf''('FormatString{,Exp}')'';' // i j l
-    public void visitStmt(ASTNode node, boolean inFunc) {
+    private void visitStmt(ASTNode node, boolean inFunc) {
         ASTNode first = node.getChild(0);
         ASTNode last = node.getChild(-1);
 
@@ -512,7 +523,7 @@ public class Visitor {
 
     // 语句 ForStmt -> LVal '=' Exp
     // h -> ConstAssign
-    public void visitForStmt(ASTNode node) {
+    private void visitForStmt(ASTNode node) {
         ASTNode first = node.getChild(0);
         visitLval(first);
         if (curTableEntry == null) {
@@ -525,19 +536,19 @@ public class Visitor {
     }
 
     // 表达式 Exp -> AddExp
-    public void visitExp(ASTNode node) {
+    private void visitExp(ASTNode node) {
         visitAddExp(node.getChild(0));
     }
 
     // 条件表达式 Cond -> LOrExp
-    public void visitCond(ASTNode node) {
+    private void visitCond(ASTNode node) {
         visitLOrExp(node.getChild(0));
     }
 
     // 左值表达式 LVal -> Ident {'[' Exp ']'}
     // c -> IdentUndefined
     // k -> RBRACKMissing
-    public void visitLval(ASTNode node) {
+    private void visitLval(ASTNode node) {
         ASTNode ident = node.getChild(0);
         if (!curSymbolTable.nameExisted(ident.getToken().getValue())) {
             errors.add(new ErrorNode(ErrorType.IdentUndefined, ident.getToken()
@@ -546,70 +557,60 @@ public class Visitor {
             curTableEntry = null;
             return;
         }
-        int length = node.getChildrenSize();
+        int l = node.getChildrenSize();
         TableEntry tableEntry = curSymbolTable.getEntry(ident.getToken().getValue());
-        switch (length) {
-            case 1:
+        if (l == 1) {
+            if (isConstant) {
+                curInt = tableEntry.getVarValue();
+            }
+            curTableEntry = tableEntry;
+            return;
+        }
+
+        ASTNode exp1 = node.getChild(2);
+        visitExp(exp1);
+        int v1;
+        if (node.getChild(3) instanceof ErrorNode errorNode) {
+            errors.add(errorNode.toString());
+        }
+
+        TableEntry referencedTableEntry;
+
+        if (l == 4) {
+            if (tableEntry.getTableEntryType() == TableEntryType.Array1 ||
+                    tableEntry.getTableEntryType() == TableEntryType.ConstArray1) {
+                referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Var, curInt);
                 if (isConstant) {
-                    curInt = tableEntry.getVarValue();
-                }
-                curTableEntry = tableEntry;
-                break;
-
-            case 4:
-            case 7:
-                ASTNode exp1 = node.getChild(2);
-                visitExp(exp1);
-
-                int v1;
-
-                if (node.getChild(3) instanceof ErrorNode errorNode) {
-                    errors.add(errorNode.toString());
-                }
-
-                TableEntry referencedTableEntry;
-                // 计算实际类型
-                // 若原符号表中为a[2][3]，则可以引用a[0]但实际上a[0]的actualType为array1 ??? 不太懂
-                if (length == 4) {
-                    if (tableEntry.getTableEntryType() == TableEntryType.Array1 ||
-                            tableEntry.getTableEntryType() == TableEntryType.ConstArray1) {
-                        // 实际传进去的是Var
-                        referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Var, curInt);
-
-                        if (isConstant) {
-                            curInt = referencedTableEntry.getValueFromReferencedArray1(curInt);
-                            curTableEntry = null;
-                        } else {
-                            curTableEntry = referencedTableEntry;
-                        }
-                    } else {
-                        // 实际传进去的是Array1
-                        referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Array1, curInt);
-                        curTableEntry = referencedTableEntry;
-                    }
+                    curInt = referencedTableEntry.getValueFromReferencedArray1(curInt);
+                    curTableEntry = null;
                 } else {
-                    referencedTableEntry = new TableEntry(tableEntry,
-                            TableEntryType.Var, curInt, 0);
-                    v1 = curInt;
-                    visitExp(node.getChild(5));
-                    int v2 = curInt;
-
-                    if (node.getChild(6) instanceof ErrorNode errorNode) {
-                        errors.add(errorNode.toString());
-                    }
-
-                    if (isConstant) {
-                        curInt = referencedTableEntry.getValueFromReferencedArray2(v1, v2);
-                        curTableEntry = null;
-                    } else {
-                        curTableEntry = referencedTableEntry;
-                    }
+                    curTableEntry = referencedTableEntry;
                 }
+            } else {
+                curTableEntry = new TableEntry(tableEntry, TableEntryType.Array1, curInt);
+            }
+        } else if (l == 7) {
+            referencedTableEntry = new TableEntry(tableEntry,
+                    TableEntryType.Var, curInt, 0);
+            v1 = curInt;
+            visitExp(node.getChild(5));
+            int v2 = curInt;
+
+            if (node.getChild(6) instanceof ErrorNode errorNode) {
+                errors.add(errorNode.toString());
+            }
+
+            if (isConstant) {
+                curInt = referencedTableEntry.getValueFromReferencedArray2(v1, v2);
+                curTableEntry = null;
+            } else {
+                curTableEntry = referencedTableEntry;
+            }
         }
     }
 
     // 基本表达式 PrimaryExp -> '(' Exp ')' | LVal | Number
-    public void visitPrimaryExp(ASTNode node) {
+    private void visitPrimaryExp(ASTNode node) {
         if (node.getChildrenSize() > 1) {
             visitExp(node.getChild(1));
             if (node.getChild(-1) instanceof ErrorNode errorNode) {
@@ -619,13 +620,11 @@ public class Visitor {
             visitLval(node.getChild(0));
         } else if (node.getChild(0).getGrammarSymbol() == GrammarSymbol.Number) {
             visitNumber(node.getChild(0));
-        } else {
-            throw new RuntimeException();
         }
     }
 
     // 数值 Number -> IntConst
-    public void visitNumber(ASTNode node) {
+    private void visitNumber(ASTNode node) {
         curInt = Integer.parseInt(node.getChild(0).getToken().getValue());
         curTableEntry = null;
     }
@@ -635,12 +634,11 @@ public class Visitor {
     // d -> Parser.ParaNumNotMatch
     // e -> Parser.ParaTypeNotMatch
     // j -> Parser.RPARENTMissing
-    public void visitUnaryExp(ASTNode node) {
+    private void visitUnaryExp(ASTNode node) {
         ASTNode first = node.getChild(0);
         if (first.getGrammarSymbol() == GrammarSymbol.PrimaryExp) {
             visitPrimaryExp(first);
         } else if (first.getGrammarSymbol() == GrammarSymbol.UnaryOp) {
-            // UnaryOp -> '+' | '−' | '!'
             int op = (first.getChild(0).getToken().getType() == Token.Type.PLUS) ? 1 :
                     (first.getChild(0).getToken().getType() == Token.Type.MINU) ? -1 : 0;
             visitUnaryExp(node.getChild(1));
@@ -648,15 +646,14 @@ public class Visitor {
                 curInt *= op;
             }
         } else if (first.getToken().getType() == Token.Type.IDENFR) {
-            if (!curSymbolTable.nameExisted(first.getToken().getValue())) { // Undefined Ident
+            if (!curSymbolTable.nameExisted(first.getToken().getValue())) {
                 errors.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
                         .getLine(), null, 0).toString());
                 curInt = 0;
                 curTableEntry = null;
             } else {
                 TableEntry tableEntry = curSymbolTable.getEntry(first.getToken().getValue());
-                if (!Objects.equals(node.getChild(2).getGrammarSymbol(), GrammarSymbol.FuncRParams)) {
-                    // 如果没有参数
+                if (node.getChild(2).getGrammarSymbol() != GrammarSymbol.FuncRParams) {
                     if (tableEntry.funcParamsNum() > 0) {
                         errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, first.getToken().getLine(),
                                 null, 0).toString());
@@ -664,30 +661,24 @@ public class Visitor {
                         curTableEntry = null;
                         return;
                     }
-                } else { // 有实参
+                } else {
                     visitFuncRParams(node.getChild(2), tableEntry);
-
-                    // 参数类型不匹配或者数量不匹配
                     if (ParamErrorHelper(tableEntry, first.getToken().getLine())) {
                         curInt = 0;
                         curTableEntry = null;
                         return;
                     }
                 }
-
                 curTableEntry = tableEntry;
             }
-            // j mistake
             if (node.getChild(-1) instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
             }
-        } else {
-            throw new RuntimeException();
         }
     }
 
     // 函数实参表 FuncRParams -> Exp { ',' Exp }
-    public void visitFuncRParams(ASTNode node, TableEntry tableEntry) {
+    private void visitFuncRParams(ASTNode node, TableEntry tableEntry) {
         tableEntry.clearFuncRParams();
         for (int i = 0; i < node.getChildrenSize(); i += 2) {
             visitExp(node.getChild(i));
@@ -697,14 +688,14 @@ public class Visitor {
     }
 
     // 乘除模表达式 MulExp -> UnaryExp | MulExp ('*' | '/' | '%') UnaryExp
-    public void visitMulExp(ASTNode node) {
+    private void visitMulExp(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitUnaryExp(node.getChild(0));
         } else {
             visitMulExp(node.getChild(0));
             int leftNum = curInt;
             visitUnaryExp(node.getChild(2));
-            if (isConstant) { // 常量的话符号表项就返回null
+            if (isConstant) {
                 if (node.getChild(1).getToken().getType() == Token.Type.MULT) {
                     curInt = leftNum * curInt;
                 } else if (node.getChild(1).getToken().getType() == Token.Type.DIV) {
@@ -718,7 +709,7 @@ public class Visitor {
     }
 
     // 加减表达式 AddExp -> MulExp { ('+' | '-') MulExp }
-    public void visitAddExp(ASTNode node) {
+    private void visitAddExp(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitMulExp(node.getChild(0));
         } else {
@@ -737,7 +728,7 @@ public class Visitor {
     }
 
     // 关系表达式 RelExp -> AddExp | RelExp ('<' | '>' | '<=' | '>=') AddExp
-    public void visitRelExp(ASTNode node) {
+    private void visitRelExp(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitAddExp(node.getChild(0));
         } else {
@@ -747,7 +738,7 @@ public class Visitor {
     }
 
     // 相等性表达式 EqExp -> RelExp | EqExp ('==' | '!=') RelExp
-    public void visitEqExp(ASTNode node) {
+    private void visitEqExp(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitRelExp(node.getChild(0));
         } else {
@@ -757,7 +748,7 @@ public class Visitor {
     }
 
     // 逻辑与表达式 LAndExp -> EqExp | LAndExp '&&' EqExp
-    public void visitLAndExp(ASTNode node) {
+    private void visitLAndExp(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitEqExp(node.getChild(0));
         } else {
@@ -767,7 +758,7 @@ public class Visitor {
     }
 
     // 逻辑或表达式 LOrExp -> LAndExp | LOrExp '||' LAndExp
-    public void visitLOrExp(ASTNode node) {
+    private void visitLOrExp(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitLAndExp(node.getChild(0));
         } else {
@@ -777,20 +768,20 @@ public class Visitor {
     }
 
     // 常量表达式 ConstExp -> AddExp
-    public void visitConstExp(ASTNode node) {
+    private void visitConstExp(ASTNode node) {
         visitAddExp(node.getChild(0));
     }
 
     private boolean ParamErrorHelper(TableEntry tableEntry, int lineNum) {
         int rParamSize = tableEntry.getFuncRParamsNum();
-        // d =-> Parser.ParaNumNotMatch
+        // d -> Parser.ParaNumNotMatch
         if (tableEntry.funcParamsNum() != rParamSize) {
             errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
                     null, 0).toString());
             return true;
         }
 
-        // e =-> Parser.ParaTypeNotMatch
+        // e -> Parser.ParaTypeNotMatch
         ArrayList<FuncParam> definedFuncParams = tableEntry.getFuncParams();
         for (int i = 0; i < rParamSize; i++) {
             if (!tableEntry.getFuncRParam(i).hasSameType(definedFuncParams.get(i))) {
@@ -801,13 +792,6 @@ public class Visitor {
         }
 
         return false;
-    }
-
-    public void print(BufferedWriter outputFile) throws IOException {
-        for (String str : errors) {
-            outputFile.write(str + "\n");
-        }
-        outputFile.flush();
     }
 
 }

@@ -5,9 +5,7 @@ import java.util.ArrayList;
 
 public class TableEntry {
     private ASTNode node;
-    private boolean isFuncParam; // 是否是函数的形参,注意是形参
-    private int funcDefLine; // 函数定义所在行号
-    private TableEntryType tableEntryType; // 指示符号表项种类
+    private TableEntryType tableEntryType;
 
     private Var var;
     private ConstVar constVar;
@@ -19,8 +17,8 @@ public class TableEntry {
     private FunctionInt functionInt;
     private ReferencedEntry referencedEntry;
 
-    private TableEntry definedEntry; // 形参对应的真正定义的表项
-    private ArrayList<TableEntry> funcRParams; // 所用的函数实参
+    private TableEntry definedEntry;
+    private ArrayList<TableEntry> funcRParams;
 
     public TableEntry() {
 
@@ -28,79 +26,49 @@ public class TableEntry {
 
     public TableEntry(TableEntry defineEntry, TableEntryType actualType, int d1) {
         this.tableEntryType = TableEntryType.ReferencedEntry;
-        // this.defLineNum = -1;
-        this.isFuncParam = false;
         this.referencedEntry = new ReferencedEntry(actualType, defineEntry.getTableEntryType(), d1);
         this.definedEntry = defineEntry;
     }
 
     public TableEntry(TableEntry defineEntry, TableEntryType actualType, int d1, int d2) {
         this.tableEntryType = TableEntryType.ReferencedEntry;
-        // this.defLineNum = -1;
-        this.isFuncParam = false;
         this.referencedEntry = new ReferencedEntry(actualType, defineEntry.getTableEntryType(), d1, d2);
         this.definedEntry = defineEntry;
     }
 
-    public int funcParamsNum() {
-        if (tableEntryType == TableEntryType.FunctionVoid) {
-            return functionVoid.getParamsNum();
-        } else if (tableEntryType == TableEntryType.FunctionInt) {
-            return functionInt.getParamsNum();
-        } else {
-            throw new RuntimeException("TableEntry funcParamsNum is null!!!");
-        }
-    }
-
-    public ArrayList<FuncParam> getFuncParams() {
-        if (tableEntryType == TableEntryType.FunctionVoid) {
-            return functionVoid.getFuncParams();
-        } else if (tableEntryType == TableEntryType.FunctionInt) {
-            return functionInt.getFuncParams();
-        } else {
-            throw new RuntimeException("TableEntry getFuncParams is null!!!");
-        }
-    }
-
-    public TableEntry(ASTNode node, Var var, boolean isFuncParam) {
+    public TableEntry(ASTNode node, Var var) {
         this.node = node;
         this.var = var;
-        this.isFuncParam = isFuncParam;
         this.tableEntryType = TableEntryType.Var;
     }
 
-    public TableEntry(ASTNode node, ConstVar constVar, boolean isFuncParam) {
+    public TableEntry(ASTNode node, ConstVar constVar) {
         this.node = node;
         this.constVar = constVar;
-        this.isFuncParam = isFuncParam;
         this.tableEntryType = TableEntryType.ConstVar;
     }
 
-    public TableEntry(ASTNode node, Array1 array1, boolean isFuncParam) {
+    public TableEntry(ASTNode node, Array1 array1) {
         this.node = node;
         this.array1 = array1;
-        this.isFuncParam = isFuncParam;
         this.tableEntryType = TableEntryType.Array1;
     }
 
-    public TableEntry(ASTNode node, ConstArray1 constArray1, boolean isFuncParam) {
+    public TableEntry(ASTNode node, ConstArray1 constArray1) {
         this.node = node;
         this.constArray1 = constArray1;
-        this.isFuncParam = isFuncParam;
         this.tableEntryType = TableEntryType.ConstArray1;
     }
 
-    public TableEntry(ASTNode node, Array2 array2, boolean isFuncParam) {
+    public TableEntry(ASTNode node, Array2 array2) {
         this.node = node;
         this.array2 = array2;
-        this.isFuncParam = isFuncParam;
         this.tableEntryType = TableEntryType.Array2;
     }
 
-    public TableEntry(ASTNode node, ConstArray2 constArray2, boolean isFuncParam) {
+    public TableEntry(ASTNode node, ConstArray2 constArray2) {
         this.node = node;
         this.constArray2 = constArray2;
-        this.isFuncParam = isFuncParam;
         this.tableEntryType = TableEntryType.ConstArray2;
     }
 
@@ -118,10 +86,25 @@ public class TableEntry {
         this.funcRParams = new ArrayList<>();
     }
 
-    public TableEntry(int value) { // 在visitFuncRParams中解析实参为常数的情况用
-        this.isFuncParam = false;
+    public TableEntry(int value) {
         this.tableEntryType = TableEntryType.ConstVar;
         this.constVar = new ConstVar(value);
+    }
+
+    public int funcParamsNum() {
+        if (tableEntryType == TableEntryType.FunctionVoid) {
+            return functionVoid.getParamsSize();
+        } else {
+            return functionInt.getParamsSize();
+        }
+    }
+
+    public ArrayList<FuncParam> getFuncParams() {
+        if (tableEntryType == TableEntryType.FunctionVoid) {
+            return functionVoid.getFuncParams();
+        } else {
+            return functionInt.getFuncParams();
+        }
     }
 
     public void clearFuncRParams() {
@@ -154,10 +137,8 @@ public class TableEntry {
     public int getVarValue() {
         if (tableEntryType == TableEntryType.Var) {
             return var.getValue();
-        } else if (tableEntryType == TableEntryType.ConstVar) {
-            return constVar.getValue();
         } else {
-            throw new RuntimeException("TableEntry getVarValue is null!!!");
+            return constVar.getValue();
         }
     }
 
@@ -183,11 +164,10 @@ public class TableEntry {
         } else if (this.getActualType() == TableEntryType.FunctionVoid) {
             return false;
         }
-        else {
-            throw new RuntimeException("TableEntry hasSameType is null!!!");
-        }
+        return false;
     }
 
+    @Override
     public String toString() {
         if (tableEntryType == TableEntryType.Var) {
             return getName() + " Var";
@@ -205,10 +185,8 @@ public class TableEntry {
             return getName() + " FunctionVoid";
         } else if (tableEntryType == TableEntryType.FunctionInt) {
             return getName() + " FunctionInt";
-        } else if (tableEntryType == TableEntryType.ReferencedEntry) {
-            return getName() + " ReferencedEntry ActualType is " + referencedEntry.getActualType();
         } else {
-            throw new RuntimeException("TableEntry toString is null!!!");
+            return getName() + " ReferencedEntry ActualType is " + referencedEntry.getActualType();
         }
     }
 
@@ -230,10 +208,8 @@ public class TableEntry {
     public int getD2ForArray2() {
         if (tableEntryType == TableEntryType.Array2) {
             return array2.getDimension2();
-        } else if (tableEntryType == TableEntryType.ConstArray2) {
-            return constArray2.getD2();
         } else {
-            throw new RuntimeException("TableEntry getD2ForArray2 is null!!!");
+            return constArray2.getDimension2();
         }
     }
 
@@ -265,9 +241,7 @@ public class TableEntry {
                     param.getTableEntryType().equals(TableEntryType.ConstArray2)) {
                 functionVoid.addArray2Param(new Array2(param.getD2ForArray2()));
             }
-        }
-
-        else if (tableEntryType == TableEntryType.FunctionInt) {
+        } else if (tableEntryType == TableEntryType.FunctionInt) {
             if (param.getTableEntryType().equals(TableEntryType.Var) ||
                     param.getTableEntryType().equals(TableEntryType.ConstVar)) {
                 functionInt.addVarParam(new Var());
@@ -279,29 +253,21 @@ public class TableEntry {
                 functionInt.addArray2Param(new Array2(param.getD2ForArray2()));
             }
         }
-
-        else {
-            throw new RuntimeException("TableEntry addParamForFuncEntry is null!!!");
-        }
     }
 
     public int getValueFromReferencedArray2(int d1, int d2) {
         if (definedEntry.getTableEntryType() == TableEntryType.Array2) {
             return definedEntry.getArray2().getValue(d1, d2);
-        } else if (definedEntry.getTableEntryType() == TableEntryType.ConstArray2) {
-            return definedEntry.getArray2().getValue(d1, d2);
         } else {
-            throw new RuntimeException("No match for getValueFromReferencedArray1!!!");
+            return definedEntry.getArray2().getValue(d1, d2);
         }
     }
 
     public int getValueFromReferencedArray1(int d1) {
         if (definedEntry.getTableEntryType() == TableEntryType.Array1) {
             return definedEntry.getArray1().getValue(d1);
-        } else if (definedEntry.getTableEntryType() == TableEntryType.ConstArray1) {
-            return definedEntry.getArray1().getValue(d1);
         } else {
-            throw new RuntimeException("No match for getValueFromReferencedArray1!!!");
+            return definedEntry.getArray1().getValue(d1);
         }
     }
 }

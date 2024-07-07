@@ -2,9 +2,8 @@ package EntryType;
 
 import java.util.ArrayList;
 
-// 三种类型参数：int param, int param[], int param[][3]
 public class FunctionVoid {
-    private ArrayList<FuncParam> funcParams;
+    private final ArrayList<FuncParam> funcParams;
 
     public FunctionVoid() {
         funcParams = new ArrayList<>();
@@ -22,7 +21,7 @@ public class FunctionVoid {
         funcParams.add(array2);
     }
 
-    public int getParamsNum() {
+    public int getParamsSize() {
         return funcParams.size();
     }
 

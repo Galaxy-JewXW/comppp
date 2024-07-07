@@ -14,7 +14,7 @@ public class ConstArray2 {
         this.values = new ArrayList<>();
     }
 
-    public int getD2 () {
+    public int getDimension2() {
         return d2;
     }
 
