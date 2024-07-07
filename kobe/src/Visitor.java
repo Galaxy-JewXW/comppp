@@ -15,9 +15,9 @@ public class Visitor {
     private SymbolTable curSymbolTable = new SymbolTable(null, true);
     private final ArrayList<String> errors = new ArrayList<>();
     private final ArrayList<Integer> curDimensions = new ArrayList<>();
-    private boolean isConstant = false;
+    private boolean parsingConstant = false;
     private int curInt;
-    private boolean receiveReturn = false;
+    private boolean haveReturnValue = false;
     private FuncType curFuncType;
     private int funcEndLine;
     private TableEntry curTableEntry = null;
@@ -97,9 +97,9 @@ public class Visitor {
 
         for (int i = 1; i < length - 2 && node.getChild(i).getToken().
                 getType() == Token.Type.LBRACK; i += 3) {
-            isConstant = true;
+            parsingConstant = true;
             visitConstExp(node.getChild(i + 1));
-            isConstant = false;
+            parsingConstant = false;
             curDimensions.add(curInt);
             if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
@@ -130,9 +130,9 @@ public class Visitor {
         int d1;
         switch (dimension) {
             case 0:
-                isConstant = true;
+                parsingConstant = true;
                 visitConstExp(node.getChild(0));
-                isConstant = false;
+                parsingConstant = false;
 
                 ConstVar constVar = new ConstVar(curInt);
                 value = new ConstValue("int", constVar);
@@ -141,9 +141,9 @@ public class Visitor {
                 d1 = curDimensions.get(0);
                 ArrayList<Integer> values = new ArrayList<>();
                 for (int i = 1, p = 0; p < d1; i += 2, p++) {
-                    isConstant = true;
+                    parsingConstant = true;
                     visitConstExp(node.getChild(i).getChild(0));
-                    isConstant = false;
+                    parsingConstant = false;
                     values.add(curInt);
                 }
                 value = new ConstValue("Array1", new ConstArray1(d1, values));
@@ -157,9 +157,9 @@ public class Visitor {
                     ASTNode temp = node.getChild(i);
                     int d11 = (temp.getChildrenSize() + 1) / 2;
                     for (int j = 1; j < d11; j += 2) {
-                        isConstant = true;
+                        parsingConstant = true;
                         visitConstExp(temp.getChild(j).getChild(0));
-                        isConstant = false;
+                        parsingConstant = false;
                         value.addValues(curInt);
                     }
                 }
@@ -196,9 +196,9 @@ public class Visitor {
         curDimensions.clear();
         for (int i = 1; i < l - 2 && node.getChild(i).getToken()
                 .getType() == Token.Type.LBRACK; i += 3) {
-            isConstant = true;
+            parsingConstant = true;
             visitConstExp(node.getChild(i + 1));
-            isConstant = false;
+            parsingConstant = false;
             curDimensions.add(curInt);
             if (node.getChild(i + 2) instanceof ErrorNode errorNode) {
                 errors.add(errorNode.toString());
@@ -275,16 +275,16 @@ public class Visitor {
             errors.add(errorNode.toString());
         }
 
-        receiveReturn = false;
+        haveReturnValue = false;
         visitBlock(node.getChild(-1), true);
 
-        if (curFuncType == FuncType.INT && !receiveReturn) {
+        if (curFuncType == FuncType.INT && !haveReturnValue) {
             errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLine, null, 0)
                     .toString());
         }
 
         curSymbolTable = curSymbolTable.getParent();
-        receiveReturn = false;
+        haveReturnValue = false;
         curFuncType = FuncType.NO;
     }
 
@@ -296,17 +296,17 @@ public class Visitor {
         curSymbolTable.addChildTable(mainSymbolTable);
         curSymbolTable = mainSymbolTable;
 
-        receiveReturn = false;
+        haveReturnValue = false;
         curFuncType = FuncType.MAIN;
 
         visitBlock(node.getChild(-1), true);
 
-        if (!receiveReturn) {
+        if (!haveReturnValue) {
             errors.add(new ErrorNode(ErrorType.ReturnMissing, funcEndLine,
                     null, 0).toString());
         }
 
-        receiveReturn = false;
+        haveReturnValue = false;
         curFuncType = FuncType.NO;
         curSymbolTable = curSymbolTable.getParent();
     }
@@ -449,7 +449,7 @@ public class Visitor {
                 errors.add(errorNode.toString());
             }
         } else if (first.getToken().getType()== Token.Type.RETURNTK) {
-            receiveReturn = inFunc;
+            haveReturnValue = inFunc;
             if (curFuncType == FuncType.VOID &&
                     node.getChild(1).getGrammarSymbol() == GrammarSymbol.Exp) {
                 errors.add(new ErrorNode(ErrorType.ReturnTypeError, first.getToken().getLine(),
@@ -558,7 +558,7 @@ public class Visitor {
         int l = node.getChildrenSize();
         TableEntry tableEntry = curSymbolTable.getEntry(ident.getToken().getValue());
         if (l == 1) {
-            if (isConstant) {
+            if (parsingConstant) {
                 curInt = tableEntry.getVarValue();
             }
             curTableEntry = tableEntry;
@@ -577,7 +577,7 @@ public class Visitor {
             if (tableEntry.getTableEntryType() == TableEntryType.Array1 ||
                     tableEntry.getTableEntryType() == TableEntryType.ConstArray1) {
                 referencedTableEntry = new TableEntry(tableEntry, TableEntryType.Var, curInt);
-                if (isConstant) {
+                if (parsingConstant) {
                     curInt = referencedTableEntry.getValueFromReferencedArray1(curInt);
                     curTableEntry = null;
                 } else {
@@ -597,7 +597,7 @@ public class Visitor {
                 errors.add(errorNode.toString());
             }
 
-            if (isConstant) {
+            if (parsingConstant) {
                 curInt = referencedTableEntry.getValueFromReferencedArray2(v1, v2);
                 curTableEntry = null;
             } else {
@@ -646,7 +646,6 @@ public class Visitor {
             if (!curSymbolTable.haveName(first.getToken().getValue())) {
                 errors.add(new ErrorNode(ErrorType.IdentUndefined, first.getToken()
                         .getLine(), null, 0).toString());
-                curInt = 0;
                 curTableEntry = null;
             } else {
                 TableEntry tableEntry = curSymbolTable.getEntry(first.getToken().getValue());
@@ -660,8 +659,7 @@ public class Visitor {
                     }
                 } else {
                     visitFuncRParams(node.getChild(2), tableEntry);
-                    if (ParamErrorHelper(tableEntry, first.getToken().getLine())) {
-                        curInt = 0;
+                    if (checkRParams(tableEntry, first.getToken().getLine())) {
                         curTableEntry = null;
                         return;
                     }
@@ -692,7 +690,7 @@ public class Visitor {
             visitMulExp(node.getChild(0));
             int leftNum = curInt;
             visitUnaryExp(node.getChild(2));
-            if (isConstant) {
+            if (parsingConstant) {
                 if (node.getChild(1).getToken().getType() == Token.Type.MULT) {
                     curInt = leftNum * curInt;
                 } else if (node.getChild(1).getToken().getType() == Token.Type.DIV) {
@@ -705,7 +703,7 @@ public class Visitor {
         }
     }
 
-    // 加减表达式 AddExp -> MulExp { ('+' | '-') MulExp }
+    // 加减表达式 AddExp -> MulExp | AddExp ('+' | '−') MulExp
     private void visitAddExp(ASTNode node) {
         if (node.getChildrenSize() == 1) {
             visitMulExp(node.getChild(0));
@@ -713,7 +711,7 @@ public class Visitor {
             visitAddExp(node.getChild(0));
             int leftNum = curInt;
             visitMulExp(node.getChild(2));
-            if (isConstant) {
+            if (parsingConstant) {
                 if (node.getChild(1).getToken().getType() == Token.Type.PLUS) {
                     curInt = leftNum + curInt;
                 } else {
@@ -769,16 +767,14 @@ public class Visitor {
         visitAddExp(node.getChild(0));
     }
 
-    private boolean ParamErrorHelper(TableEntry tableEntry, int lineNum) {
+    private boolean checkRParams(TableEntry tableEntry, int lineNum) {
         int rParamSize = tableEntry.getFuncRParamsSize();
-        // d -> Parser.ParaNumNotMatch
         if (tableEntry.funcParamsNum() != rParamSize) {
             errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
                     null, 0).toString());
             return true;
         }
 
-        // e -> Parser.ParaTypeNotMatch
         ArrayList<FuncParam> definedFuncParams = tableEntry.getFuncParams();
         for (int i = 0; i < rParamSize; i++) {
             if (!tableEntry.getFuncRParam(i).haveSameType(definedFuncParams.get(i))) {
@@ -787,7 +783,6 @@ public class Visitor {
                 return true;
             }
         }
-
         return false;
     }
 
