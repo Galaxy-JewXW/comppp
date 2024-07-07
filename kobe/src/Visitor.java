@@ -672,6 +672,25 @@ public class Visitor {
         }
     }
 
+    private boolean checkRParams(TableEntry tableEntry, int lineNum) {
+        int rParamSize = tableEntry.getFuncRParamsSize();
+        if (tableEntry.funcParamsNum() != rParamSize) {
+            errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
+                    null, 0).toString());
+            return true;
+        }
+
+        ArrayList<FuncParam> definedFuncParams = tableEntry.getFuncParams();
+        for (int i = 0; i < rParamSize; i++) {
+            if (!tableEntry.getFuncRParam(i).haveSameType(definedFuncParams.get(i))) {
+                errors.add(new ErrorNode(ErrorType.ParaTypeNotMatch, lineNum,
+                        null, 0).toString());
+                return true;
+            }
+        }
+        return false;
+    }
+
     // 函数实参表 FuncRParams -> Exp { ',' Exp }
     private void visitFuncRParams(ASTNode node, TableEntry tableEntry) {
         tableEntry.clearFuncRParams();
@@ -767,23 +786,5 @@ public class Visitor {
         visitAddExp(node.getChild(0));
     }
 
-    private boolean checkRParams(TableEntry tableEntry, int lineNum) {
-        int rParamSize = tableEntry.getFuncRParamsSize();
-        if (tableEntry.funcParamsNum() != rParamSize) {
-            errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
-                    null, 0).toString());
-            return true;
-        }
-
-        ArrayList<FuncParam> definedFuncParams = tableEntry.getFuncParams();
-        for (int i = 0; i < rParamSize; i++) {
-            if (!tableEntry.getFuncRParam(i).haveSameType(definedFuncParams.get(i))) {
-                errors.add(new ErrorNode(ErrorType.ParaTypeNotMatch, lineNum,
-                        null, 0).toString());
-                return true;
-            }
-        }
-        return false;
-    }
 
 }
