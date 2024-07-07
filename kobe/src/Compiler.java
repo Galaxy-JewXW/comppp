@@ -14,7 +14,7 @@ public class Compiler {
         Parser parser = new Parser(lexer.getTokens());
         ASTNode root = parser.parse();
         ASTNode.printAST(root, output);
-        Visitor visitor = new Visitor(root, true);
+        Visitor visitor = new Visitor(root);
         visitor.visitCompUnit();
         visitor.print(output2);
     }
