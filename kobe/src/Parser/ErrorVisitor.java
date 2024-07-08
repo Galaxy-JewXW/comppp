@@ -39,6 +39,10 @@ public class ErrorVisitor {
         outputFile.flush();
     }
 
+    public boolean hasError() {
+        return !errors.isEmpty();
+    }
+
     public void visit() {
         visitCompUnit();
     }
@@ -286,7 +290,7 @@ public class ErrorVisitor {
                     .toString());
         }
 
-        curSymbolTable = curSymbolTable.getParent();
+        curSymbolTable = (SymbolTable) curSymbolTable.getParent();
         haveReturnValue = false;
         curFuncType = FuncType.NO;
     }
@@ -311,7 +315,7 @@ public class ErrorVisitor {
 
         haveReturnValue = false;
         curFuncType = FuncType.NO;
-        curSymbolTable = curSymbolTable.getParent();
+        curSymbolTable = (SymbolTable) curSymbolTable.getParent();
     }
 
     // 函数形参表 FuncFParams -> FuncFParam { ',' FuncFParam }
@@ -407,7 +411,7 @@ public class ErrorVisitor {
         } else if (first.getGrammarSymbol() == GrammarSymbol.Block) {
             curSymbolTable = new SymbolTable(curSymbolTable, false);
             visitBlock(first, inFunc);
-            curSymbolTable = curSymbolTable.getParent();
+            curSymbolTable = (SymbolTable) curSymbolTable.getParent();
         } else if (first.getGrammarSymbol() == GrammarSymbol.Exp
                 || node.getChildrenSize() == 1) {
             // Stmt -> [Exp] ';'
