@@ -25,7 +25,7 @@ public class MemoryInstruction extends Instruction {
                     this.type = new Pointer(type);
                     this.arrayType = type;
                 } else if (l == 3) {
-                    this.type = new Pointer(array).getObjectType();
+                    this.type = new Pointer(array.getElementsType());
                     this.arrayType = type;
                 }
             } else if (type instanceof Pointer pointer) {
@@ -33,7 +33,7 @@ public class MemoryInstruction extends Instruction {
                     this.type = type;
                     this.arrayType = pointer.getObjectType();
                 } else if (l == 3) {
-                    this.type = new Pointer(((Array) ((Pointer) type).getObjectType()).getElementsType());
+                    this.type = new Pointer(((Array)pointer.getObjectType()).getElementsType());
                     this.arrayType = pointer.getObjectType();
                 }
             }

@@ -13,7 +13,6 @@ import LLVM.Instructions.TerminatorInstruction;
 import Lexer.Token;
 import Parser.ASTNode;
 import Parser.GrammarSymbol;
-import Table.TableEntry;
 import Table.ValueTable;
 import Types.Array;
 import Types.Int;
@@ -336,9 +335,7 @@ public class IRBuilder {
         curValueTable.addEntry(ident.getToken().getValue(), alloc);
         if (node.getChild(-1).getGrammarSymbol() == GrammarSymbol.InitVal) {
             ArrayList<Integer> dimensions = new ArrayList<>(curDimensions);
-            isArrayInit = true;
             visitInitVal(node.getChild(-1));
-            isArrayInit = false;
 
             ArrayList<Value> values = new ArrayList<>(curArray);
             curArrayIndex = 0;
@@ -368,10 +365,10 @@ public class IRBuilder {
             if (child.getChildrenSize() == 1) {
                 if (isGlobalInit) {
                     parsingConstant = true;
-                    visitInitVal(node.getChild(0));
+                    visitInitVal(child);
                     parsingConstant = false;
                 } else {
-                    visitInitVal(node.getChild(0));
+                    visitInitVal(child);
                 }
                 array.add(curValue);
             } else {
@@ -563,20 +560,20 @@ public class IRBuilder {
                 expNodes.add(curValue);
             }
 
-            Function callch = module.getFunction("@putch");
+            Function callee = module.getFunction("@putch");
             Function callInt = module.getFunction("@putint");
             String format = formatStr.getToken().getValue();
             int l = format.length();
             for (int i = 1; i < l - 1; i++) {
                 char c = format.charAt(i);
                 if (c == '%' && format.charAt(i + 1) == 'd') {
-                    IRMaker.makeCallWithReturn(curBasicBlock, callInt, callInt, expNodes.remove(0));
+                    IRMaker.makeCallNoReturn(curBasicBlock, callInt, callInt, expNodes.remove(0));
                     i++;
                 } else if (c == '\\' && format.charAt(i + 1) == 'n') {
                     i++;
-                    IRMaker.makeCallNoReturn(curBasicBlock, callch, callch, new ConstInt(32, 10));
+                    IRMaker.makeCallNoReturn(curBasicBlock, callee, callee, new ConstInt(32, 10));
                 } else {
-                    IRMaker.makeCallNoReturn(curBasicBlock, callch, callch, new ConstInt(32, c));
+                    IRMaker.makeCallNoReturn(curBasicBlock, callee, callee, new ConstInt(32, c));
                 }
             }
         }
@@ -843,7 +840,6 @@ public class IRBuilder {
     // 基本表达式 PrimaryExp -> '(' Exp ')' | LVal | Number
     private void visitPrimaryExp(ASTNode node) {
         if (node.getChildrenSize() > 1) {
-            // '(' Exp ')'
             visitExp(node.getChild(1));
         } else if (node.getChild(0).getGrammarSymbol() == GrammarSymbol.Number) {
             visitNumber(node.getChild(0));
@@ -862,10 +858,13 @@ public class IRBuilder {
                     isCallingFunc = false;
                 }
                 visitLVal(node.getChild(0));
-                if (!nowIsCallingFunc && !(curValue.getType() instanceof Int)
-                        && (((Pointer) curValue.getType()).getObjectType() instanceof Int)) {
-                    curValue = IRMaker.makeMemoryInstruction(curBasicBlock,new Int(32),
-                            MemoryType.Load, curValue);
+                if (!nowIsCallingFunc) { // 数组作为函数参数不应load
+                    if (!(curValue.getType() instanceof Int)) { // 全局变量在函数内被调用
+                        if (((Pointer) curValue.getType()).getObjectType() instanceof Int) {
+                            curValue = IRMaker.makeMemoryInstruction(curBasicBlock,new Int(32),
+                                    MemoryType.Load, curValue);
+                        }
+                    }
                 }
             }
         }

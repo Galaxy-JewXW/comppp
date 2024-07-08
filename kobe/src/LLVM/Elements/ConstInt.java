@@ -14,5 +14,7 @@ public class ConstInt extends Element {
         return value;
     }
 
-
+    public String toString() {
+        return this.getName();
+    }
 }

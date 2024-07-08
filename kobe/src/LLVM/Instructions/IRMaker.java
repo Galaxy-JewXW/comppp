@@ -16,8 +16,8 @@ public class IRMaker {
     private static int cnt = 0;
 
     public static BasicBlock makeBasicBlock(Function parent) {
-        BasicBlock block = new BasicBlock("Func_" + parent.getName().substring(1)
-                + "_Block_" + cnt, parent);
+        BasicBlock block = new BasicBlock("Function_" + parent.getName().substring(1)
+                + "_BasicBlock_" + cnt, parent);
         cnt++;
         parent.addBasicBlock(block);
         return block;

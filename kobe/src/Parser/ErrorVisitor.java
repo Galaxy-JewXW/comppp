@@ -665,8 +665,9 @@ public class ErrorVisitor {
                         return;
                     }
                 } else {
-                    visitFuncRParams(node.getChild(2), tableEntry);
-                    if (checkRParams(tableEntry, first.getToken().getLine())) {
+                    ArrayList<TableEntry> entries = new ArrayList<>();
+                    visitFuncRParams(node.getChild(2), tableEntry, entries);
+                    if (checkRParams(tableEntry, first.getToken().getLine(), entries)) {
                         curTableEntry = null;
                         return;
                     }
@@ -679,32 +680,40 @@ public class ErrorVisitor {
         }
     }
 
-    private boolean checkRParams(TableEntry tableEntry, int lineNum) {
+    private boolean checkRParams(TableEntry tableEntry, int lineNum, ArrayList<TableEntry> rParams) {
         int rParamSize = tableEntry.getFuncRParamsSize();
-        if (tableEntry.funcParamsNum() != rParamSize) {
+        int rParamSize1 = rParams.size();
+        if (tableEntry.funcParamsNum() != rParamSize1) {
             errors.add(new ErrorNode(ErrorType.ParaNumNotMatch, lineNum,
                     null, 0).toString());
             return true;
         }
-
         ArrayList<FuncParam> definedFuncParams = tableEntry.getFuncParams();
-        for (int i = 0; i < rParamSize; i++) {
-            if (!tableEntry.getFuncRParam(i).haveSameType(definedFuncParams.get(i))) {
+        for (int i = 0; i < rParamSize1; i++) {
+            if (!rParams.get(i).haveSameType(definedFuncParams.get(i))) {
                 errors.add(new ErrorNode(ErrorType.ParaTypeNotMatch, lineNum,
                         null, 0).toString());
                 return true;
             }
         }
+
         return false;
     }
 
     // 函数实参表 FuncRParams -> Exp { ',' Exp }
-    private void visitFuncRParams(ASTNode node, TableEntry tableEntry) {
+    private void visitFuncRParams(ASTNode node, TableEntry tableEntry,
+                                  ArrayList<TableEntry> entries) {
         tableEntry.clearFuncRParams();
         for (int i = 0; i < node.getChildrenSize(); i += 2) {
             visitExp(node.getChild(i));
-            tableEntry.addFuncRParam(Objects.requireNonNullElseGet
-                    (curTableEntry, () -> new TableEntry(curInt)));
+            if (curTableEntry != null) {
+                tableEntry.addFuncRParam(curTableEntry);
+                entries.add(curTableEntry);
+                // curSymbolTable.addEntry(curTableEntry.getName(), curTableEntry);
+            } else { // 函数实参为常数
+                tableEntry.addFuncRParam(new TableEntry(curInt));
+                entries.add(new TableEntry(curInt));
+            }
         }
     }
 
