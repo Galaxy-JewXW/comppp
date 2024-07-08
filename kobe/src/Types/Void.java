@@ -1,4 +1,4 @@
-package Type;
+package Types;
 
 public class Void implements Type {
     @Override

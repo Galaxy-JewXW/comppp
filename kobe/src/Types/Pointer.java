@@ -1,4 +1,4 @@
-package Type;
+package Types;
 
 public class Pointer implements Type {
     private final Type objectType;

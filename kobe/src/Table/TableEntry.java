@@ -1,6 +1,8 @@
 package Table;
 
 import EntryType.*;
+import LLVM.Elements.FunctionInt;
+import LLVM.Elements.FunctionVoid;
 import Parser.ASTNode;
 
 import java.util.ArrayList;
@@ -231,24 +233,24 @@ public class TableEntry {
         if (tableEntryType == TableEntryType.FunctionVoid) {
             if (entry.getTableEntryType().equals(TableEntryType.Var) ||
             entry.getTableEntryType().equals(TableEntryType.ConstVar)) {
-                functionVoid.addVarParam(new Var());
+                functionVoid.addParam(new Var());
             } else if (entry.getTableEntryType().equals(TableEntryType.Array1) ||
             entry.getTableEntryType().equals(TableEntryType.ConstArray1)) {
-                functionVoid.addArray1Param(new Array1());
+                functionVoid.addParam(new Array1());
             } else if (entry.getTableEntryType().equals(TableEntryType.Array2) ||
                     entry.getTableEntryType().equals(TableEntryType.ConstArray2)) {
-                functionVoid.addArray2Param(new Array2(entry.getD24Array2()));
+                functionVoid.addParam(new Array2(entry.getD24Array2()));
             }
         } else if (tableEntryType == TableEntryType.FunctionInt) {
             if (entry.getTableEntryType().equals(TableEntryType.Var) ||
                     entry.getTableEntryType().equals(TableEntryType.ConstVar)) {
-                functionInt.addVarParam(new Var());
+                functionInt.addParam(new Var());
             } else if (entry.getTableEntryType().equals(TableEntryType.Array1) ||
                     entry.getTableEntryType().equals(TableEntryType.ConstArray1)) {
-                functionInt.addArray1Param(new Array1());
+                functionInt.addParam(new Array1());
             } else if (entry.getTableEntryType().equals(TableEntryType.Array2) ||
                     entry.getTableEntryType().equals(TableEntryType.ConstArray2)) {
-                functionInt.addArray2Param(new Array2(entry.getD24Array2()));
+                functionInt.addParam(new Array2(entry.getD24Array2()));
             }
         }
     }

@@ -1,6 +1,6 @@
 package LLVM;
 
-import Type.Type;
+import Types.Type;
 
 import java.util.ArrayList;
 

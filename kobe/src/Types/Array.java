@@ -1,4 +1,4 @@
-package Type;
+package Types;
 
 public class Array implements Type {
     private final Type elementsType;

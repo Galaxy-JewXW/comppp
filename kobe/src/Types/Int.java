@@ -1,4 +1,4 @@
-package Type;
+package Types;
 
 public class Int implements Type {
     private final int size;

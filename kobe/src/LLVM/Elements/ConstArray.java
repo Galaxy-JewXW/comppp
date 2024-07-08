@@ -1,7 +1,7 @@
 package LLVM.Elements;
 
 import LLVM.Value;
-import Type.Array;
+import Types.Array;
 
 import java.util.ArrayList;
 

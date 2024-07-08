@@ -1,4 +1,4 @@
-package Type;
+package Types;
 
 public class Label implements Type {
     @Override

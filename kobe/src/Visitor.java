@@ -1,4 +1,6 @@
 import EntryType.*;
+import LLVM.Elements.FunctionInt;
+import LLVM.Elements.FunctionVoid;
 import Lexer.Token;
 import Parser.*;
 import Table.SymbolTable;

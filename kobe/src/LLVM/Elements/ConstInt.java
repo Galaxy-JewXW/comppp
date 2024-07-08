@@ -1,6 +1,6 @@
 package LLVM.Elements;
 
-import Type.Int;
+import Types.Int;
 
 public class ConstInt extends Element {
     private int value;
