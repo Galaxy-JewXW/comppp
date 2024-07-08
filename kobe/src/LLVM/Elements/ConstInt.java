@@ -5,8 +5,9 @@ import Types.Int;
 public class ConstInt extends Element {
     private int value;
 
-    public ConstInt(int value, int size) {
+    public ConstInt(int size, int value) {
         super(Integer.toString(value), new Int(size), null);
+        this.value = value;
     }
 
     public int getValue() {

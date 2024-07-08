@@ -1,3 +1,4 @@
 {
-    "programming language": "java"
+    "programming language": "java",
+    "object code": "llvm"
 }

@@ -11,6 +11,7 @@ public class Compiler {
         BufferedReader reader = new BufferedReader(new FileReader("testfile.txt"));
         BufferedWriter output = new BufferedWriter(new FileWriter("output.txt"));
         BufferedWriter output2 = new BufferedWriter(new FileWriter("error.txt"));
+        BufferedWriter output3 = new BufferedWriter(new FileWriter("llvm_ir.txt"));
 
         Lexer lexer = new Lexer(reader);
         lexer.tokenize();
@@ -29,5 +30,8 @@ public class Compiler {
         }
 
         IRBuilder irBuilder = new IRBuilder(root);
+        irBuilder.build();
+        output3.write(irBuilder.toString());
+        output3.flush();
     }
 }

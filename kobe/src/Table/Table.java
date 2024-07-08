@@ -48,6 +48,10 @@ public class Table<T> {
         return null;
     }
 
+    public boolean isRoot() {
+        return isRoot;
+    }
+
     public void printNames() {
         StringBuilder sb = new StringBuilder();
         for (String name : entries.keySet()) {

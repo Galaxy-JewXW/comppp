@@ -5,10 +5,10 @@ import LLVM.Value;
 import Types.Int;
 import Types.Type;
 
-public class Operator extends Instruction {
+public class OperatorInstruction extends Instruction {
     private OperatorType operatorType;
 
-    public Operator(String name, Type type, BasicBlock parent, OperatorType operatorType, Value... values) {
+    public OperatorInstruction(String name, Type type, BasicBlock parent, OperatorType operatorType, Value... values) {
         super("%_" + name, type, parent, values);
         this.operatorType = operatorType;
         if (operatorType == OperatorType.ICMP_EQ || operatorType == OperatorType.ICMP_NE

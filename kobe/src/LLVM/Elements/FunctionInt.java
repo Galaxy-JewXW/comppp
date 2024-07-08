@@ -49,6 +49,18 @@ public class FunctionInt {
         this.type = type;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setBlocks(ArrayList<BasicBlock> blocks) {
+        this.blocks = blocks;
+    }
+
+    public int getArgsSize() {
+        return arguments.size();
+    }
+
     public int getParamsSize() {
         return params.size();
     }

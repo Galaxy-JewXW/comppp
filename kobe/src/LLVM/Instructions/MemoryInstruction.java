@@ -51,15 +51,15 @@ public class MemoryInstruction extends Instruction {
                     " " + getUsedValue(0).getName() + ", " +
                     getUsedValue(1).getType() + " " + getUsedValue(1).getName();
         } else if (memoryType == MemoryType.Alloca) {
-            return this.getName() + " = alloca " + ((Pointer)this.getType()).getObjectType();
+            return this.getName() + " = alloca " + ((Pointer)getType()).getObjectType();
         } else if (memoryType == MemoryType.ZextTo) {
             return this.getName() + " = zext " +
-                    this.getUsedValue(0).getType() + " " + this.getUsedValue(0).getName() +
+                    getUsedValue(0).getType() + " " + getUsedValue(0).getName() +
                     " to " + this.getType();
         } else if (memoryType == MemoryType.Getelementptr) {
             StringBuilder sb = new StringBuilder();
             sb.append(getName()).append(" = getelementptr ").append(arrayType).append(", ");
-            for (int i = 0; i < this.getValuesSize(); i++) {
+            for (int i = 0; i < getValuesSize(); i++) {
                 sb.append(getUsedValue(i).getType());
                 sb.append(" ");
                 sb.append(getUsedValue(i).getName());

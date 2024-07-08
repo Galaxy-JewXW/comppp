@@ -99,10 +99,10 @@ public class ErrorVisitor {
                     .getLine(), null, 0).toString());
             return;
         }
-        int length = node.getChildrenSize();
+        int l = node.getChildrenSize();
         curDimensions.clear();
 
-        for (int i = 1; i < length - 2 && node.getChild(i).getToken().
+        for (int i = 1; i < l - 2 && node.getChild(i).getToken().
                 getType() == Token.TokenType.LBRACK; i += 3) {
             parsingConstant = true;
             visitConstExp(node.getChild(i + 1));
