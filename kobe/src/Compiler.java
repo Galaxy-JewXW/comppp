@@ -1,6 +1,7 @@
 import Lexer.Lexer;
 import Parser.ASTNode;
 import Parser.Parser;
+import Parser.ErrorVisitor;
 
 import java.io.*;
 
@@ -14,8 +15,8 @@ public class Compiler {
         Parser parser = new Parser(lexer.getTokens());
         ASTNode root = parser.parse();
         ASTNode.printAST(root, output);
-        Visitor visitor = new Visitor(root);
-        visitor.visit();
-        visitor.print(output2);
+        ErrorVisitor errorVisitor = new ErrorVisitor(root);
+        errorVisitor.visit();
+        errorVisitor.print(output2);
     }
 }

@@ -114,7 +114,7 @@ public class Parser {
     }
 
     // 常数定义 ConstDef -> Ident { '[' ConstExp ']' } '=' ConstInitVal
-    // b -> IdentRedefined (Visitor)
+    // b -> IdentRedefined (Parser.ErrorVisitor)
     // k -> RBRACKMissing
     public ASTNode parseConstDef (int depth) {
         ASTNode constDef = new ASTNode(GrammarSymbol.ConstDef, null, depth);
@@ -209,7 +209,7 @@ public class Parser {
     }
 
     // 变量定义 VarDef -> Ident { '[' ConstExp ']' } | Ident { '[' ConstExp ']' } '=' InitVal
-    // b -> IdentRedefined(Visitor)
+    // b -> IdentRedefined(Parser.ErrorVisitor)
     // k -> RBRACKMissing
     public ASTNode parseVarDef(int depth) {
         ASTNode varDef = new ASTNode(GrammarSymbol.VarDef, null, depth);
@@ -269,7 +269,7 @@ public class Parser {
     }
 
     // 函数定义 FuncDef -> FuncType Ident '(' [FuncFParams] ')' Block
-    // b, g -> IdentRedefined, ReturnMissing(Visitor)
+    // b, g -> IdentRedefined, ReturnMissing(Parser.ErrorVisitor)
     // j -> RPARENTMissing
     public ASTNode parseFuncDef(int depth) {
         ASTNode funcDef = new ASTNode(GrammarSymbol.FuncDef, null, depth);
@@ -308,7 +308,7 @@ public class Parser {
     }
 
     // 主函数定义 MainFuncDef -> 'int' 'main' '(' ')' Block
-    // g -> ReturnMissing(Visitor)
+    // g -> ReturnMissing(Parser.ErrorVisitor)
     // j -> RPARENTMissing
     public ASTNode parseMainFuncDef (int depth) {
         ASTNode mainFuncDef = new ASTNode(GrammarSymbol.MainFuncDef, null, depth);
@@ -371,7 +371,7 @@ public class Parser {
     }
 
     // 函数形参 FuncFParam -> BType Ident ['[' ']' { '[' ConstExp ']' }]
-    // b -> ErrorType.IdentRedefined(Visitor)
+    // b -> ErrorType.IdentRedefined(Parser.ErrorVisitor)
     // k -> ErrorType.RBRACKMissing
     public ASTNode parseFuncFParam(int depth) {
         ASTNode funcFParam = new ASTNode(GrammarSymbol.FuncFParam, null, depth);
@@ -695,7 +695,7 @@ public class Parser {
     }
 
     // 左值表达式 LVal -> Ident {'[' Exp ']'}
-    // c -> IdentUnDefined(Visitor)
+    // c -> IdentUnDefined(Parser.ErrorVisitor)
     // k -> RBRACKMissing
     public ASTNode parseLVal(int depth) {
         ASTNode lVal = new ASTNode(GrammarSymbol.LVal, null, depth);
@@ -762,7 +762,7 @@ public class Parser {
     }
 
     // 一元表达式 UnaryExp -> PrimaryExp | Ident '(' [FuncRParams] ')' | UnaryOp UnaryExp
-    // c, d, e -> IdentUnDefined, ParaNumNotMatch, ParaTypeNotMatch(Visitor)
+    // c, d, e -> IdentUnDefined, ParaNumNotMatch, ParaTypeNotMatch(Parser.ErrorVisitor)
     // j -> ErrorType.RPARENTMissing
     public ASTNode parseUnaryExp(int depth) {
         ASTNode unaryExp = new ASTNode(GrammarSymbol.UnaryExp, null, depth);

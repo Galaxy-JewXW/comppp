@@ -8,8 +8,8 @@ import java.util.ArrayList;
 public class Value {
     private static int counter = 0;
     private final int id;
-    private final String name;
-    private final Type type;
+    protected String name;
+    protected Type type;
     private final Value parent;
     private final ArrayList<User> users = new ArrayList<>();
 

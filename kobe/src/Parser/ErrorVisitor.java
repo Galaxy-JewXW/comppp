@@ -1,8 +1,9 @@
+package Parser;
+
 import EntryType.*;
 import LLVM.Elements.FunctionInt;
 import LLVM.Elements.FunctionVoid;
 import Lexer.Token;
-import Parser.*;
 import Table.SymbolTable;
 import Table.TableEntry;
 import Table.TableEntryType;
@@ -12,7 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Visitor {
+public class ErrorVisitor {
     private final ASTNode root;
     private SymbolTable curSymbolTable = new SymbolTable(null, true);
     private final ArrayList<String> errors = new ArrayList<>();
@@ -25,7 +26,7 @@ public class Visitor {
     private TableEntry curTableEntry = null;
     private int forLevel = 0;
 
-    public Visitor(ASTNode root) {
+    public ErrorVisitor(ASTNode root) {
         this.root = root;
         this.curFuncType = FuncType.NO;
         this.funcEndLine = 0;
