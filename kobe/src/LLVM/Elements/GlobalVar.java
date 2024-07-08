@@ -7,7 +7,8 @@ import LLVM.Module;
 public class GlobalVar extends Element {
     private boolean isConst = false;
     private Module parent;
-    private Value getZeroElement(Type type) {
+
+    private static Value getZeroElement(Type type) {
         if (type instanceof Int) {
             return new ConstInt(32, 0);
         } else {
@@ -16,7 +17,7 @@ public class GlobalVar extends Element {
     }
 
     public GlobalVar(String name, Type type, Module module) {
-        super("@" + name, new Pointer(type), null);
+        super("@" + name, new Pointer(type), null, getZeroElement(type));
         this.parent = module;
         module.addGlobalVar(this);
     }

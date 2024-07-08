@@ -724,7 +724,7 @@ public class Parser {
     }
 
     // 基本表达式 PrimaryExp -> '(' Exp ')' | LVal | Number
-    public ASTNode  parsePrimaryExp(int depth) {
+    public ASTNode parsePrimaryExp(int depth) {
         ASTNode primaryExp = new ASTNode(GrammarSymbol.PrimaryExp, null, depth);
         ASTNode child;
         if (curTokenType() != Token.TokenType.LPARENT) {
