@@ -24,9 +24,7 @@ public class Lexer {
                         || token.getType() == TokenType.EMPTY_LINE) {
                     break;
                 }
-                if (token.getType() != TokenType.MULTI_LINE_COMMENT
-                        || token.getType() != TokenType.SINGLE_LINE_COMMENT
-                        || token.getType() != TokenType.EMPTY_LINE) {
+                if (token.getType() != TokenType.MULTI_LINE_COMMENT) {
                     tokens.add(token);
                 }
             }
@@ -43,11 +41,9 @@ public class Lexer {
         if (curPos >= curLine.length()) {
             return new Token(TokenType.EMPTY_LINE, "", lineNum);
         }
-
         if (inMultiComment) {
             return dealMultiComment();
         }
-
         if (Character.isLetter(curLine.charAt(curPos)) || curLine.charAt(curPos) == '_') {
             while (Character.isLetterOrDigit(curLine.charAt(curPos)) || curLine.charAt(curPos) == '_') {
                 sb.append(curLine.charAt(curPos));
