@@ -10,8 +10,9 @@ import java.util.ArrayList;
 public class Compiler {
     public static void main(String[] args) throws Exception {
         BufferedReader reader = new BufferedReader(new FileReader("testfile.txt"));
-        BufferedWriter lexWriter = new BufferedWriter(new FileWriter("output.txt"));
+        BufferedWriter lexWriter = new BufferedWriter(new FileWriter("lex.txt"));
 
+        // Lexer
         Lexer lexer = new Lexer(reader);
         ArrayList<Token> tokens = lexer.tokenize();
         for (Token token : tokens) {

@@ -3,9 +3,9 @@ package frontend.lexer;
 import frontend.parser.SyntaxNode;
 
 public class Token implements SyntaxNode {
-    private TokenType type;
-    private int lineNum;
-    private String content;
+    private final TokenType type;
+    private final int lineNum;
+    private final String content;
 
     public Token(TokenType type, String content, int lineNum) {
         this.type = type;
@@ -17,24 +17,12 @@ public class Token implements SyntaxNode {
         return content;
     }
 
-    public int getLineNum() {
-        return lineNum;
-    }
-
     public TokenType getType() {
         return type;
     }
 
-    public void setType(TokenType type) {
-        this.type = type;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public void setLineNum(int lineNum) {
-        this.lineNum = lineNum;
+    public int getLineNum() {
+        return lineNum;
     }
 
     @Override
